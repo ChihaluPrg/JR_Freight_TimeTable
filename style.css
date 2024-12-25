@@ -14,18 +14,23 @@ body {
 .container {
   position: relative;
   min-height: 100vh;
-  padding: 20px;
+  padding: 10px;
 }
 
 .timetable {
+  
   margin-top: 30px;
   background-color: #fff;
-  padding: 20px;
   border: 2px solid #364c57;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   width: 100%; /* テーブルの幅を全体に広げる */
-  table-layout: auto; /* 自動調整 */
-  overflow: hidden; /* 横スクロールを防ぐ */
+  table-layout: fixed; /* 固定レイアウトにすることで、列幅を均等に設定 */
+  overflow-x: auto; /* 横スクロールを有効にして、テーブルが大きすぎる場合はスクロール */
+  margin-bottom: 20px;
+}
+
+.add {
+  font-size: 1.5rem;
 }
 
 .table-header {
@@ -35,7 +40,7 @@ body {
 }
 
 th, td {
-  padding: 10px;
+  font-size: 1.4rem;
   text-align: center;
   border: 1px solid #7a7a7a;
   word-wrap: break-word; /* 長い文字列を適切に折り返す */
@@ -46,6 +51,7 @@ th {
 }
 
 td {
+  font-size: 1.4rem;
   border-bottom: 1px solid #7a7a7a;
 }
 
@@ -65,8 +71,7 @@ button:hover {
 
 a {
   display: inline-block;
-  margin-top: 20px;
-  padding: 10px 15px;
+  padding: 8px 12px;
   background-color: #364c57;
   color: white;
   text-decoration: none;
@@ -86,41 +91,4 @@ a:hover {
   height: 100%;
   object-fit: cover;
   opacity: 0.3;
-}
-
-@media screen and (min-width: 1024px) {
-  .container {
-    max-width: 1200px;
-    margin: 0 auto;
-  }
-
-  .timetable {
-    font-size: 1.8rem;
-    width: 80%;
-    margin: 80px auto;
-  }
-
-  th, td {
-    padding: 15px;
-  }
-
-  button, a {
-    font-size: 1.6rem;
-    padding: 12px 18px;
-  }
-}
-
-@media screen and (max-width: 768px) {
-  .timetable {
-    font-size: 1.4rem;
-  }
-
-  th, td {
-    padding: 8px;
-  }
-
-  button, a {
-    font-size: 1.4rem;
-    padding: 8px 12px;
-  }
 }
