@@ -4,9 +4,19 @@ html {
   font-size: 62.5%;
 }
 
+.nexttuuka {
+  position: absolute;
+  margin: 10px 10px 10px 18px;
+  width: 91%;
+  z-index: 1000;
+  font-size: 2rem;
+  background-color: rgb(255, 255, 255);
+}
+
 .timetable {
   position: absolute;
   margin: 10px 10px 10px 18px;
+  top: 50px;
   font-size: 1.7rem;
   background-color: rgb(255, 255, 255);
   text-align: center;
@@ -20,8 +30,6 @@ th {
 }
 
 td {
-  display: flex;
-  align-items: center;
   padding: 8px;
   border-right: 1px solid #7a7a7a;
   border-bottom: 1px solid #7a7a7a;
