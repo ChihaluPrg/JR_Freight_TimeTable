@@ -1,49 +1,126 @@
 @charset "utf-8";
 
 html {
-  font-size: 62.5%;
+  font-size: 62.5%; /* 1rem = 10px に設定（レスポンシブ対応） */
 }
 
-.nexttuuka {
-  position: absolute;
-  margin: 10px 10px 10px 18px;
-  width: 91%;
-  z-index: 1000;
-  font-size: 2rem;
-  background-color: rgb(255, 255, 255);
+body {
+  font-family: 'Arial', sans-serif;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.container {
+  position: relative;
+  min-height: 100vh;
+  padding: 20px;
 }
 
 .timetable {
-  position: absolute;
-  margin: 10px 10px 10px 18px;
-  top: 50px;
-  font-size: 1.7rem;
-  background-color: rgb(255, 255, 255);
-  text-align: center;
   margin-top: 30px;
+  background-color: #fff;
+  padding: 20px;
+  border: 2px solid #364c57;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  width: 100%; /* テーブルの幅を全体に広げる */
+  table-layout: auto; /* 自動調整 */
+  overflow: hidden; /* 横スクロールを防ぐ */
+}
+
+.table-header {
+  background-color: #f4f4f4;
+  font-weight: bold;
+  text-align: center;
+}
+
+th, td {
+  padding: 10px;
+  text-align: center;
+  border: 1px solid #7a7a7a;
+  word-wrap: break-word; /* 長い文字列を適切に折り返す */
 }
 
 th {
-  border-bottom: 0.5px solid #7a7a7a;
-  border-right: 1px solid #7a7a7a;
-  padding: 5px 0;
+  border-bottom: 2px solid #7a7a7a;
 }
 
 td {
-  padding: 8px;
-  border-right: 1px solid #7a7a7a;
   border-bottom: 1px solid #7a7a7a;
 }
 
-.background img{
+button {
+  padding: 8px 12px;
+  background-color: #364c57;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #283c47;
+}
+
+a {
+  display: inline-block;
+  margin-top: 20px;
+  padding: 10px 15px;
+  background-color: #364c57;
+  color: white;
+  text-decoration: none;
+  border-radius: 4px;
+}
+
+a:hover {
+  background-color: #283c47;
+}
+
+.background img {
   position: absolute;
   z-index: -1;
-  display: inline-block;
+  top: 0;
+  left: 0;
+  width: 100%;
   height: 100%;
-  opacity: 0.3;
   object-fit: cover;
+  opacity: 0.3;
 }
 
 @media screen and (min-width: 1024px) {
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
 
+  .timetable {
+    font-size: 1.8rem;
+    width: 80%;
+    margin: 80px auto;
+  }
+
+  th, td {
+    padding: 15px;
+  }
+
+  button, a {
+    font-size: 1.6rem;
+    padding: 12px 18px;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .timetable {
+    font-size: 1.4rem;
+  }
+
+  th, td {
+    padding: 8px;
+  }
+
+  button, a {
+    font-size: 1.4rem;
+    padding: 8px 12px;
+  }
 }

@@ -1,23 +1,42 @@
 <!DOCTYPE html>
 <html lang="ja">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>JR貨物-時刻表</title>
-    <link rel="shortcut icon" href="" type="image/x-icon" />
-    <link rel="stylesheet" href="reset.css" />
-    <link rel="stylesheet" href="style.css" />
-  </head>
-  <body>
-    <div class="container">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JR貨物-時刻表</title>
+  <link rel="stylesheet" href="reset.css" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <div class="timetable">
+      <table id="timetable">
+        <tr class="table-header">
+          <th>通過駅</th>
+          <th>日</th>
+          <th>方面</th>
+          <th>通過時刻</th>
+          <th>車両</th>
+          <th>内容</th>
+          <th>操作</th> <!-- 操作列を追加 -->
+        </tr>
+      </table>
+    </div>
+    <a href="add-train.html">列車データを追加</a>
 
-      <div class="nexttuuka">
-        <p>次通過列車：</p>
-        <p>通過まで残り：</p>
+    <div class="background">
+      <div class="background-img">
+        <img src="scenery_08_backboad.jpg" alt="背景">
       </div>
+    </div>
+  </div>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const timetable = JSON.parse(localStorage.getItem("timetable")) || [];
+      const table = document.getElementById("timetable");
 
-      <div class="timetable">
-        <table>
+      function renderTable() {
+        table.innerHTML = `
           <tr class="table-header">
             <th>通過駅</th>
             <th>日</th>
@@ -25,31 +44,38 @@
             <th>通過時刻</th>
             <th>車両</th>
             <th>内容</th>
+            <th>操作</th>
           </tr>
-          <tr>
-            <td>吹上</td>
-            <td>平日</td>
-            <td>上り</td>
-            <td>11:52</td>
-            <td>EF210</td>
-            <td>石油返空</td>
-          </tr>
-          <tr>
-            <td>吹上</td>
-            <td>平日</td>
-            <td>上り</td>
-            <td>19:26</td>
-            <td>EF210</td>
-            <td>石油返空</td>
-          </tr>
-        </table>
-      </div>
-      <div class="background">
-        <div class="background-img">
-          <img src="scenery_08_backboad.jpg" alt="背景">
-        </div>
-      </div>
-    </div>
-    <script src="script.js"></script>
-  </body>
+        `;
+        timetable.forEach((train, index) => {
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td>${train.station}</td>
+            <td>${train.day}</td>
+            <td>${train.direction}</td>
+            <td>${train.time}</td>
+            <td>${train.train}</td>
+            <td>${train.content}</td>
+            <td>
+              <a href="edit-train.html?index=${index}">編集</a>
+              <button onclick="deleteTrain(${index})">削除</button>
+            </td>
+          `;
+          table.appendChild(row);
+        });
+      }
+
+      // 削除処理
+      window.deleteTrain = (index) => {
+        if (confirm("この列車データを削除しますか？")) {
+          timetable.splice(index, 1);
+          localStorage.setItem("timetable", JSON.stringify(timetable));
+          renderTable();
+        }
+      };
+
+      renderTable();
+    });
+  </script>
+</body>
 </html>
