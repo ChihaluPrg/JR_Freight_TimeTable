@@ -6,83 +6,153 @@
   <title>列車データを追加</title>
   <link rel="stylesheet" href="reset.css" />
   <link rel="stylesheet" href="add-style.css" />
+  <style>
+    .tabs {
+      display: flex;
+      cursor: pointer;
+    }
+    .tabs div {
+      padding: 10px 20px;
+      margin-right: 10px;
+      border-radius: 5px 5px 0 0;
+    }
+    .tabs div.active {
+      background-color: #f0f0f0;
+      border-color: #888;
+    }
+    .tab-content {
+      display: none;
+      padding: 20px;
+      border: 1px solid #ccc;
+      border-radius: 0 0 5px 5px;
+      margin-top: 10px;
+    }
+    .tab-content.active {
+      display: block;
+      border-top: none;
+    }
+    .ordinary-table-row {
+      background-color: #dff0d8; /* 緑の背景 */
+    }
+  </style>
 </head>
 <body>
   <div class="container">
     <h3>列車データを追加</h3>
-    <form id="addTrainForm">
-      <label for="station">通過駅:</label>
-      <select id="station" required>
-        <option value="" disabled selected>-選択-</option>
-        <option value="東京">東京</option>
-        <option value="上野">上野</option>
-        <option value="尾久">尾久</option>
-        <option value="赤羽">赤羽</option>
-        <option value="浦和">浦和</option>
-        <option value="大宮">大宮</option>
-        <option value="宮原">宮原</option>
-        <option value="上尾">上尾</option>
-        <option value="北上尾">北上尾</option>
-        <option value="桶川">桶川</option>
-        <option value="北本">北本</option>
-        <option value="鴻巣">鴻巣</option>
-        <option value="北鴻巣">北鴻巣</option>
-        <option value="吹上">吹上</option>
-        <option value="行田">行田</option>
-        <option value="熊谷">熊谷</option>
-        <option value="籠原">籠原</option>
-        <option value="深谷">深谷</option>
-        <option value="岡部">岡部</option>
-        <option value="本庄">本庄</option>
-        <option value="神保原">神保原</option>
-        <option value="新町">新町</option>
-        <option value="倉賀野">倉賀野</option>
-        <option value="高崎">高崎</option>
-      </select>
 
-      <label for="day">日:</label>
-      <select id="day" required>
-        <option value="" disabled selected>-選択-</option>
-        <option value="平日">平日</option>
-        <option value="休日">休日</option>
-      </select>
+    <!-- タブ -->
+    <div class="tabs">
+      <div class="tab" id="cargoTab">貨物列車</div>
+      <div class="tab" id="ordinaryTab">普通列車</div>
+    </div>
 
-      <label for="direction">方面:</label>
-      <select id="direction" required>
-        <option value="" disabled selected>-選択-</option>
-        <option value="上り">上り</option>
-        <option value="下り">下り</option>
-      </select>
+    <!-- 貨物列車フォーム -->
+    <div class="tab-content" id="cargoForm">
+      <form id="cargoTrainForm">
+        <label for="station">通過駅:</label>
+        <select id="station" required>
+          <option value="" disabled selected>-選択-</option>
+          <option value="吹上">吹上</option>
+        </select>
 
-      <label for="time">通過時刻:</label>
-      <input type="time" id="time" required />
+        <label for="direction">方面:</label>
+        <select id="direction" required>
+          <option value="" disabled selected>-選択-</option>
+          <option value="上り">上り</option>
+          <option value="下り">下り</option>
+        </select>
 
-      <label for="train">車両:</label>
-      <select id="train" required>
-        <option value="" disabled selected>-選択-</option>
-        <option value="EH500">EH500</option>
-        <option value="EH200">EH200</option>
-        <option value="EF210">EF210</option>
-        <option value="EF65">EF65</option>
-        <option value="EF64">EF64</option>
-        <option value="EF81">EF81</option>
-        <option value="DD51">DD51</option>
-      </select>
+        <label for="cargoTime">通過時刻:</label>
+        <input type="time" id="cargoTime" required />
 
-      <label for="content">内容:</label>
-      <select id="content" required>
-        <option value="" disabled selected>-選択-</option>
-        <option value="コンテナ">コンテナ</option>
-        <option value="石油">石油</option>
-        <option value="石油返空">石油返空</option>
-        <option value="砂利鉱石">砂利鉱石</option>
-        <option value="砂利鉱石返空">砂利鉱石返空</option>
-        <option value="単機">単機</option>
-      </select>
+        <label for="train">車両:</label>
+        <select id="train" required>
+          <option value="" disabled selected>-選択-</option>
+          <option value="EH500">EH500</option>
+          <option value="EH200">EH200</option>
+          <option value="EF210">EF210</option>
+          <option value="EF65">EF65</option>
+          <option value="EF64">EF64</option>
+          <option value="EF81">EF81</option>
+          <option value="DD51">DD51</option>
+          <option value="その他">その他</option>
+        </select>
 
-      <button type="submit">追加</button>
-    </form>
-    <a href="index.html">時刻表を見る</a>
+        <label for="content">内容:</label>
+        <select id="content" required>
+          <option value="" disabled selected>-選択-</option>
+          <option value="コンテナ">コンテナ</option>
+          <option value="石油">石油</option>
+          <option value="石油返空">石油返空</option>
+          <option value="砂利鉱石">砂利鉱石</option>
+          <option value="砂利鉱石返空">砂利鉱石返空</option>
+          <option value="その他">その他</option>
+          <option value="単機">単機</option>
+        </select>
+
+        <button type="submit">追加</button>
+      </form>
+    </div>
+
+    <!-- 普通列車フォーム -->
+    <div class="tab-content" id="ordinaryForm">
+      <form id="ordinaryTrainForm">
+        <label for="trainType">種別:</label>
+        <select id="trainType" required>
+          <option value="-" disabled selected>-選択-</option>
+          <option value="普通">普通</option>
+          <option value="快速">快速</option>
+          <option value="特快">特快</option>
+          <option value="特急">特急</option>
+          <option value="回送">回送</option>
+        </select>
+
+        <label for="ordinaryDirection">方面:</label>
+        <select id="ordinaryDirection" required>
+          <option value="-" disabled selected>-選択-</option>
+          <option value="上り">上り</option>
+          <option value="下り">下り</option>
+        </select>
+
+        <label for="ordinaryTime">通過時刻:</label>
+        <input type="time" id="ordinaryTime" required />
+
+        <label for="destination">行先:</label>
+        <select id="destination" required>
+          <option value="-" disabled selected>-選択-</option>
+          <optgroup label="下り">
+            <option value="高崎">高崎</option>
+            <option value="前橋">前橋</option>
+            <option value="籠原">籠原</option>
+          </optgroup>
+          <optgroup label="上り">
+            <option value="熱海">熱海</option>
+            <option value="国府津">国府津</option>
+            <option value="小田原">小田原</option>
+            <option value="沼津">沼津</option>
+            <option value="上野">上野</option>
+            
+          </optgroup>
+        </select>
+
+        <label for="formation">編成:</label>
+        <select id="formation" required>
+          <option value="-" disabled selected>-選択-</option>
+          <option value="10両">10両</option>
+          <option value="15両">15両</option>
+        </select>
+
+        
+
+        <!-- 追加: 列車番号 -->
+        <label for="trainNumber">列車番号:</label>
+        <input type="text" id="trainNumber" required placeholder="例: 1234E" />
+
+        <button type="submit">追加</button>
+      </form>
+    </div>
+
+    <a href="index.html" class="timetable-ret">時刻表を見る</a>
 
     <div class="background">
       <div class="background-img">
@@ -92,25 +162,77 @@
   </div>
 
   <script>
-    // フォームの送信イベントを監視してlocalStorageに保存
-    document.getElementById("addTrainForm").addEventListener("submit", event => {
+    // 初期表示で貨物タブをアクティブにする
+    document.addEventListener("DOMContentLoaded", function() {
+      document.getElementById("cargoTab").classList.add("active");
+      document.getElementById("cargoForm").classList.add("active");
+    });
+
+    // タブ切り替えの処理
+    document.getElementById("cargoTab").addEventListener("click", function() {
+      document.getElementById("cargoForm").classList.add("active");
+      document.getElementById("ordinaryForm").classList.remove("active");
+      document.getElementById("cargoTab").classList.add("active");
+      document.getElementById("ordinaryTab").classList.remove("active");
+    });
+
+    document.getElementById("ordinaryTab").addEventListener("click", function() {
+      document.getElementById("ordinaryForm").classList.add("active");
+      document.getElementById("cargoForm").classList.remove("active");
+      document.getElementById("ordinaryTab").classList.add("active");
+      document.getElementById("cargoTab").classList.remove("active");
+    });
+
+    // 普通列車データ追加
+    document.getElementById("ordinaryTrainForm").addEventListener("submit", function(event) {
       event.preventDefault();
 
-      const station = document.getElementById("station").value;
-      const day = document.getElementById("day").value;
-      const direction = document.getElementById("direction").value;
-      const time = document.getElementById("time").value;
-      const train = document.getElementById("train").value;
-      const content = document.getElementById("content").value;
+      // フォームの値を取得。未選択の場合は "-" に設定。
+      const destination = document.getElementById("destination").value || "-";
+      const trainType = document.getElementById("trainType").value || "-";
+      const formation = document.getElementById("formation").value || "-";
+      const time = document.getElementById("ordinaryTime").value || "-";
+      const direction = document.getElementById("ordinaryDirection").value || "-";
+      const trainNumber = document.getElementById("trainNumber").value || "-"; // 列車番号の追加
 
-      const newTrain = { station, day, direction, time, train, content };
+      // データを保存
+      const newTrain = { destination, trainType, formation, time, direction, trainNumber }; // 列車番号を追加
+      const ordinaryTimetable = JSON.parse(localStorage.getItem("ordinaryTimetable")) || [];
+      ordinaryTimetable.push(newTrain);
+      localStorage.setItem("ordinaryTimetable", JSON.stringify(ordinaryTimetable));
+
+      alert("普通列車データを追加しました！");
+      document.getElementById("ordinaryTrainForm").reset(); // フォームをリセット
+    });
+
+    // 貨物列車データ追加
+    document.getElementById("cargoTrainForm").addEventListener("submit", function(event) {
+      event.preventDefault();
+  
+      // フォームの値を取得。未選択の場合は "-" に設定。
+      const station = document.getElementById("station").value || "-";
+      const direction = document.getElementById("direction").value || "-";
+      const time = document.getElementById("cargoTime").value || "-";
+      const train = document.getElementById("train").value || "-";
+      const content = document.getElementById("content").value || "-";
+  
+      // フォームに未選択の場合の「-」を設定
+      document.getElementById("station").value = station;
+      document.getElementById("direction").value = direction;
+      document.getElementById("cargoTime").value = time;
+      document.getElementById("train").value = train;
+      document.getElementById("content").value = content;
+  
+      // データを保存
+      const newTrain = { station, direction, time, train, content };
       const timetable = JSON.parse(localStorage.getItem("timetable")) || [];
       timetable.push(newTrain);
       localStorage.setItem("timetable", JSON.stringify(timetable));
-
-      alert("列車データを追加しました！");
-      document.getElementById("addTrainForm").reset();
+  
+      alert("貨物列車データを追加しました！");
+      document.getElementById("cargoTrainForm").reset(); // フォームをリセット
     });
+  
   </script>
 </body>
 </html>

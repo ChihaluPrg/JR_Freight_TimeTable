@@ -5,122 +5,102 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>列車データ編集</title>
   <link rel="stylesheet" href="reset.css" />
-  <link rel="stylesheet" href="edit-style.css" />
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <div class="container">
-    <h3>列車データを編集</h3>
-    <form id="editTrainForm">
-      <label for="station">通過駅:</label>
-      <select id="station" required>
-        <option value="" disabled selected>-選択-</option>
-        <option value="東京">東京</option>
-        <option value="上野">上野</option>
-        <option value="尾久">尾久</option>
-        <option value="赤羽">赤羽</option>
-        <option value="浦和">浦和</option>
-        <option value="大宮">大宮</option>
-        <option value="宮原">宮原</option>
-        <option value="上尾">上尾</option>
-        <option value="北上尾">北上尾</option>
-        <option value="桶川">桶川</option>
-        <option value="北本">北本</option>
-        <option value="鴻巣">鴻巣</option>
-        <option value="北鴻巣">北鴻巣</option>
-        <option value="吹上">吹上</option>
-        <option value="行田">行田</option>
-        <option value="熊谷">熊谷</option>
-        <option value="籠原">籠原</option>
-        <option value="深谷">深谷</option>
-        <option value="岡部">岡部</option>
-        <option value="本庄">本庄</option>
-        <option value="神保原">神保原</option>
-        <option value="新町">新町</option>
-        <option value="倉賀野">倉賀野</option>
-        <option value="高崎">高崎</option>
-      </select>
-
-      <label for="day">日:</label>
-      <select id="day" required>
-        <option value="" disabled selected>-選択-</option>
-        <option value="平日">平日</option>
-        <option value="休日">休日</option>
-      </select>
-
-      <label for="direction">方面:</label>
-      <select id="direction" required>
-        <option value="" disabled selected>-選択-</option>
-        <option value="上り">上り</option>
-        <option value="下り">下り</option>
-      </select>
-
-      <label for="time">通過時刻:</label>
-      <input type="time" id="time" required />
-
-      <label for="train">車両:</label>
-      <select id="train" required>
-        <option value="" disabled selected>-選択-</option>
-        <option value="EH500">EH500</option>
-        <option value="EH200">EH200</option>
-        <option value="EF210">EF210</option>
-        <option value="EF65">EF65</option>
-        <option value="EF64">EF64</option>
-        <option value="EF81">EF81</option>
-        <option value="DD51">DD51</option>
-      </select>
-
-      <label for="content">内容:</label>
-      <select id="content" required>
-        <option value="" disabled selected>-選択-</option>
-        <option value="コンテナ">コンテナ</option>
-        <option value="石油">石油</option>
-        <option value="石油返空">石油返空</option>
-        <option value="砂利鉱石">砂利鉱石</option>
-        <option value="砂利鉱石返空">砂利鉱石返空</option>
-        <option value="単機">単機</option>
-      </select>
-
+    <h1>列車データ編集</h1>
+    <form id="edit-form">
+      <div class="form-group">
+        <label for="train-type">種別</label>
+        <input type="text" id="train-type" name="trainType" required />
+      </div>
+      <div class="form-group">
+        <label for="station">駅名</label>
+        <input type="text" id="station" name="station" required />
+      </div>
+      <div class="form-group">
+        <label for="time">時刻</label>
+        <input type="time" id="time" name="time" required />
+      </div>
+      <div class="form-group">
+        <label for="train">車両</label>
+        <input type="text" id="train" name="train" required />
+      </div>
+      <div class="form-group">
+        <label for="content">内容</label>
+        <input type="text" id="content" name="content" required />
+      </div>
+      <div class="form-group">
+        <label for="direction">方向</label>
+        <select id="direction" name="direction">
+          <option value="上り">上り</option>
+          <option value="下り">下り</option>
+        </select>
+      </div>
       <button type="submit">保存</button>
     </form>
-    <a href="index.html">戻る</a>
+    <button id="cancel" onclick="window.history.back()">キャンセル</button>
   </div>
 
   <script>
     document.addEventListener("DOMContentLoaded", () => {
       const urlParams = new URLSearchParams(window.location.search);
-      const index = parseInt(urlParams.get("index"), 10);
-      const timetable = JSON.parse(localStorage.getItem("timetable")) || [];
-      const train = timetable[index];
+      const index = urlParams.get("index");
+      const type = urlParams.get("type"); // 新たに type パラメータを追加
 
-      if (!train) {
-        alert("データが見つかりません");
-        window.location.href = "index.html";
+      // localStorageから貨物列車・普通列車のデータを取得
+      const timetable = JSON.parse(localStorage.getItem("timetable")) || [];
+      const ordinaryTimetable = JSON.parse(localStorage.getItem("ordinaryTimetable")) || [];
+
+      let trainData;
+
+      // 編集する列車データの取得
+      if (type === 'ordinary') {
+        trainData = ordinaryTimetable[index];
+      } else {
+        trainData = timetable[index];
+      }
+
+      if (!trainData) {
+        alert("指定された列車データが見つかりません。");
         return;
       }
 
-      // フォームにデータを反映
-      document.getElementById("station").value = train.station;
-      document.getElementById("day").value = train.day;
-      document.getElementById("direction").value = train.direction;
-      document.getElementById("time").value = train.time;
-      document.getElementById("train").value = train.train;
-      document.getElementById("content").value = train.content;
+      // フォームに既存のデータをセット
+      const form = document.getElementById("edit-form");
+      form.elements["trainType"].value = trainData.trainType || '';
+      form.elements["station"].value = trainData.station || '';
+      form.elements["time"].value = trainData.time || '';
+      form.elements["train"].value = trainData.train || '';
+      form.elements["content"].value = trainData.content || '';
+      form.elements["direction"].value = trainData.direction || '上り';
 
-      // フォーム送信時の更新処理
-      document.getElementById("editTrainForm").addEventListener("submit", (e) => {
+      // フォームの送信処理
+      form.addEventListener("submit", (e) => {
         e.preventDefault();
-        train.station = document.getElementById("station").value;
-        train.day = document.getElementById("day").value;
-        train.direction = document.getElementById("direction").value;
-        train.time = document.getElementById("time").value;
-        train.train = document.getElementById("train").value;
-        train.content = document.getElementById("content").value;
 
-        // データ保存
-        timetable[index] = train;
-        localStorage.setItem("timetable", JSON.stringify(timetable));
-        alert("データが更新されました");
-        window.location.href = "index.html";
+        const updatedTrainData = {
+          trainType: form.elements["trainType"].value,
+          station: form.elements["station"].value,
+          time: form.elements["time"].value,
+          train: form.elements["train"].value,
+          content: form.elements["content"].value,
+          direction: form.elements["direction"].value,
+        };
+
+        // データを更新して保存
+        if (type === 'ordinary') {
+          ordinaryTimetable[index] = updatedTrainData;
+          localStorage.setItem("ordinaryTimetable", JSON.stringify(ordinaryTimetable));
+        } else {
+          timetable[index] = updatedTrainData;
+          localStorage.setItem("timetable", JSON.stringify(timetable));
+        }
+
+        // 保存後、元のページに戻る
+        alert("列車データが更新されました。");
+        window.location.href = "index.html"; // 元のページにリダイレクト
       });
     });
   </script>
