@@ -83,6 +83,8 @@
         return hour1 === hour2 ? minute1 - minute2 : hour1 - hour2;
       };
 
+      let combinedTimetable = [];
+
       function renderTable() {
         table.innerHTML = ` 
           <tr class="table-header">
@@ -94,11 +96,12 @@
           </tr>
         `;
 
-        // 貨物列車データを時刻順にソート
-        timetable.sort((a, b) => compareTimes(a.time, b.time));
+        // 貨物列車と普通列車のデータを結合して時刻順にソート
+        combinedTimetable = [...timetable, ...ordinaryTimetable];
+        combinedTimetable.sort((a, b) => compareTimes(a.time, b.time));
 
-        // 貨物列車データの表示
-        timetable.forEach((train, index) => {
+        // 結合したデータの表示
+        combinedTimetable.forEach((train, combinedIndex) => {
           const row = document.createElement("tr");
 
           // 貨物列車にも上り・下りに基づいた色を設定
@@ -108,46 +111,19 @@
             row.classList.add("down-direction");
           }
 
-          row.innerHTML = `
-            <td>${train.station}</td>
-            <td>${train.time}</td>
-            <td>${train.train}</td>
-            <td>${train.content}</td>
-            <td>
-              <button onclick="deleteTrain(${index}, 'timetable')">削除</button>
-            </td>
-          `;
-          table.appendChild(row);
-        });
-
-        // 普通列車データを時刻順にソート
-        ordinaryTimetable.sort((a, b) => compareTimes(a.time, b.time));
-
-        // 普通列車データの表示
-        ordinaryTimetable.forEach((train, index) => {
-          const row = document.createElement("tr");
-
-          // 回送列車の場合
           if (train.trainType === '回送') {
             row.classList.add("train-type-ryousou");
             row.innerHTML = `
               <td>回送</td>
-              <td>-</td>
+              <td>${train.time}</td> <!-- 時刻を表示 -->
               <td>-</td>
               <td>-</td>
               <td>
-                <button onclick="deleteTrain(${index}, 'ordinaryTimetable')">削除</button>
+                <button onclick="deleteTrain(${combinedIndex}, 'ordinaryTimetable')">削除</button>
               </td>
             `;
-          } else {
-            // 上り列車か下り列車かで背景色を変更
-            if (train.direction === '上り') {
-              row.classList.add("up-direction");
-            } else if (train.direction === '下り') {
-              row.classList.add("down-direction");
-            }
-
-            // 列車番号を表示する部分を追加
+          } else if (train.trainType) {
+            // 普通列車の表示
             row.innerHTML = `
               <td class="train-type-and-station">
                 <div class="train-type">${train.trainType}</div>
@@ -158,7 +134,18 @@
               <td>${train.formation}</td>
               <td>${train.trainNumber}</td>
               <td>
-                <button onclick="deleteTrain(${index}, 'ordinaryTimetable')">削除</button>
+                <button onclick="deleteTrain(${combinedIndex}, 'ordinaryTimetable')">削除</button>
+              </td>
+            `;
+          } else {
+            // 貨物列車の表示
+            row.innerHTML = `
+              <td>${train.station}</td>
+              <td>${train.time}</td>
+              <td>${train.train}</td>
+              <td>${train.content}</td>
+              <td>
+                <button onclick="deleteTrain(${combinedIndex}, 'timetable')">削除</button>
               </td>
             `;
           }
@@ -166,17 +153,20 @@
         });
       }
 
-      // 削除処理
-      window.deleteTrain = (index, type) => {
-        const currentTimetable = type === 'timetable' ? timetable : ordinaryTimetable;
-        if (confirm("この列車データを削除しますか？")) {
-          currentTimetable.splice(index, 1);
-          localStorage.setItem(type, JSON.stringify(currentTimetable));
-          renderTable();
-        }
-      };
-
-      renderTable();
+       // 削除処理
+       window.deleteTrain = (combinedIndex, type) => {
+          console.log(`Deleting train at index ${combinedIndex} from ${type}`);
+          const currentTimetable = type === 'timetable' ? timetable : ordinaryTimetable;
+          const trainIndex = currentTimetable.findIndex(train => combinedTimetable[combinedIndex].time === train.time && combinedTimetable[combinedIndex].trainType === train.trainType);
+          if (trainIndex !== -1 && confirm("この列車データを削除しますか？")) {
+            currentTimetable.splice(trainIndex, 1);
+            localStorage.setItem(type, JSON.stringify(currentTimetable));
+            console.log(`Updated ${type}:`, currentTimetable);
+            renderTable();
+          }
+        };
+  
+        renderTable();
     });
   </script>
 </body>
