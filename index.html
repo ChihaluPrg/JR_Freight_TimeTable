@@ -314,7 +314,9 @@
       setInterval(updateNextTrainInfo, 100);
 
       renderTable();
-      updateNextTrainInfo();
+      setInterval(() => {
+        updateNextTrainInfo();
+      }, 1000);
     });
   </script>
 </body>
