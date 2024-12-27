@@ -137,12 +137,15 @@
   <body>
     <div class="container">
       <label class="show-ordinary-trains-label">
-        <input type="checkbox" id="show-ordinary-trains" checked />
+        <input type="checkbox" id="show-ordinary-trains" />
         普通列車を表示
       </label>
       <label class="show-passed-trains-label">
         <input type="checkbox" id="show-passed-trains" /> 通過済みの列車を表示
       </label>
+      <div class="next-train-info" id="next-train-info">
+        --次列車情報--<br /><span id="next-train"></span>
+      </div>
       <div class="timetable">
         <table id="timetable">
           <tr class="table-header">
@@ -163,9 +166,7 @@
           <img src="scenery_08_backboad.jpg" alt="背景" />
         </div>
       </div>
-      <div class="next-train-info" id="next-train-info">
-        --次列車情報--<br /><span id="next-train"></span>
-      </div>
+      
     </div>
 
     <script>
