@@ -15,7 +15,6 @@
     }
 
     th, td {
-      padding: 10px;
       border: 1px solid #7a7a7a;
     }
 
@@ -26,37 +25,36 @@
 
     /* 列の幅を調整 */
     th:nth-child(1), td:nth-child(1) {
-      width: 20%;
+      width: 18%;
     }
 
     th:nth-child(2), td:nth-child(2) {
-      width: 15%;
+      width: 10%;
     }
 
     th:nth-child(3), td:nth-child(3) {
-      width: 20%;
+      width: 15%;
     }
 
     th:nth-child(4), td:nth-child(4) {
-      width: 25%;
+      width: 20%;
     }
 
     th:nth-child(5), td:nth-child(5) {
       width: 20%;
     }
 
-    /* 普通列車のテーブルの背景色を緑にする */
-    .ordinary-table-row {
-      background-color: #b6ff98; /* 緑色 */
+    th:nth-child(6), td:nth-child(6) {
+      width: 15%;
     }
 
-    /* 上り列車の背景色（赤） */
-    .up-direction {
+    /* 上り列車の方向の背景色（赤） */
+    .direction-up {
       background-color: #ffcccc; /* 赤色 */
     }
 
-    /* 下り列車の背景色（青） */
-    .down-direction {
+    /* 下り列車の方向の背景色（青） */
+    .direction-down {
       background-color: #cce5ff; /* 青色 */
     }
 
@@ -67,9 +65,15 @@
     }
 
     .train-type {
+      background-color: #ffa500; /* オレンジ色 */
+      width: 100%;
+      text-align: center;
     }
 
     .station {
+      background-color: #b6ff98; /* 緑色 */
+      width: 100%;
+      text-align: center;
     }
 
     .train-type-and-station hr {
@@ -81,6 +85,11 @@
     /* 回送列車の表示スタイル */
     .train-type-ryousou {
       background-color: #f9f9f9; /* 薄い灰色 */
+    }
+
+    /* 貨物列車のフォントを太字にする */
+    .freight-font-bold {
+      font-weight: bold;
     }
   </style>
 </head>
@@ -126,6 +135,7 @@
         table.innerHTML = ` 
           <tr class="table-header">
             <th>種別/行先<br>通過駅(貨)</th>
+            <th>方向</th>
             <th>時刻</th>
             <th>車両 (貨)<br>編成 (普)</th>
             <th>内容 (貨)<br>列番 (普)</th>
@@ -141,17 +151,14 @@
         combinedTimetable.forEach((train, combinedIndex) => {
           const row = document.createElement("tr");
 
-          // 貨物列車にも上り・下りに基づいた色を設定
-          if (train.direction === '上り') {
-            row.classList.add("up-direction");
-          } else if (train.direction === '下り') {
-            row.classList.add("down-direction");
-          }
+          // 方向に基づいた色を設定
+          const directionClass = train.direction === '上り' ? 'direction-up' : 'direction-down';
 
           if (train.trainType === '回送') {
             row.classList.add("train-type-ryousou");
             row.innerHTML = `
               <td>回送</td>
+              <td class="${directionClass}">${train.direction}</td>
               <td>${train.time}</td> <!-- 時刻を表示 -->
               <td>-</td>
               <td>-</td>
@@ -167,6 +174,7 @@
                 <hr /> <!-- 種別と通/停駅の間に線を追加 -->
                 <div class="station">${train.destination}</div>
               </td>
+              <td class="${directionClass}">${train.direction}</td>
               <td>${train.time}</td>
               <td>${train.formation}</td>
               <td>${train.trainNumber}</td>
@@ -177,10 +185,11 @@
           } else {
             // 貨物列車の表示
             row.innerHTML = `
-              <td>${train.station}</td>
-              <td>${train.time}</td>
-              <td>${train.train}</td>
-              <td>${train.content}</td>
+              <td class="freight-font-bold">${train.station}</td>
+              <td class="freight-font-bold ${directionClass}">${train.direction}</td>
+              <td class="freight-font-bold">${train.time}</td>
+              <td class="freight-font-bold">${train.train}</td>
+              <td class="freight-font-bold">${train.content}</td>
               <td>
                 <button onclick="deleteTrain(${combinedIndex}, 'timetable')">削除</button>
               </td>
