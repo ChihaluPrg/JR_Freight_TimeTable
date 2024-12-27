@@ -1,367 +1,433 @@
 <!DOCTYPE html>
 <html lang="ja">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>JR貨物-時刻表</title>
-  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
-  <link rel="stylesheet" href="reset.css" />
-  <link rel="stylesheet" href="style.css" />
-  <style>
-    /* テーブルのスタイルを改善 */
-    table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-
-    th, td {
-      border: 1px solid #7a7a7a;
-    }
-
-    th {
-      background-color: #f4f4f4;
-      font-weight: bold;
-    }
-
-    /* 列の幅を調整 */
-    th:nth-child(1), td:nth-child(1) {
-      width: 18%;
-    }
-
-    th:nth-child(2), td:nth-child(2) {
-      width: 10%;
-    }
-
-    th:nth-child(3), td:nth-child(3) {
-      width: 15%;
-    }
-
-    th:nth-child(4), td:nth-child(4) {
-      width: 15%;
-    }
-
-    th:nth-child(5), td:nth-child(5) {
-      width: 22%;
-    }
-
-    th:nth-child(6), td:nth-child(6) {
-      width: 15%;
-    }
-
-    /* 上り列車の方向の背景色（赤） */
-    .direction-up {
-      background-color: #ffcccc; /* 赤色 */
-    }
-
-    /* 下り列車の方向の背景色（青） */
-    .direction-down {
-      background-color: #cce5ff; /* 青色 */
-    }
-
-    /* 種別と通/停駅を上下に並べるためのスタイル */
-    .train-type-and-station {
-      flex-direction: column;
-      align-items: center;
-      padding: 0;
-    }
-
-    .train-type {
-      background-color: #ffa500; /* オレンジ色 */
-      width: 100%;
-      text-align: center;
-    }
-
-    .station {
-      background-color: #b6ff98; /* 緑色 */
-      width: 100%;
-      text-align: center;
-    }
-
-    .train-type-and-station hr {
-      border: 0;
-      border-top: 1px solid #7a7a7a;
-      margin: 0; /* 上下に少し余白を追加 */
-    }
-
-    /* 回送列車の表示スタイル */
-    .train-type-ryousou {
-      background-color: #f9f9f9; /* 薄い灰色 */
-    }
-
-    /* 貨物列車のフォントを太字にする */
-    .freight-font-bold {
-      font-weight: bold;
-    }
-
-    /* 次列車情報のスタイル */
-    .next-train-info {
-      margin-top: 20px;
-      font-size: 1.6rem;
-      font-weight: bold;
-      background-color: #f0f0f0;
-      padding: 10px;
-      border: 1px solid #7a7a7a;
-      border-radius: 5px;
-      text-align: center;
-    }
-
-    /* 点滅アニメーション */
-    @keyframes blink {
-      50% {
-        background-color: yellow;
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>JR貨物-時刻表</title>
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
+    <link rel="stylesheet" href="reset.css" />
+    <link rel="stylesheet" href="style.css" />
+    <style>
+      /* テーブルのスタイルを改善 */
+      table {
+        width: 100%;
+        border-collapse: collapse;
       }
-    }
 
-    .blinking {
-      animation: blink 1s step-start 0s infinite;
-    }
+      th,
+      td {
+        border: 1px solid #7a7a7a;
+      }
 
-    /* 非表示のスタイル */
-    .hidden {
-      display: none;
-    }
+      th {
+        background-color: #f4f4f4;
+        font-weight: bold;
+      }
 
-    .show-old-trains-label, .show-ordinary-trains-label {
-      font-size: 1.6rem;
-    }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <label class="show-old-trains-label">
-      <input type="checkbox" id="show-old-trains" checked> 1時間前のデータを表示
-    </label>
-    <label class="show-ordinary-trains-label">
-      <input type="checkbox" id="show-ordinary-trains" checked> 普通列車を表示
-    </label>
-    <div class="timetable">
-      <table id="timetable">
-        <tr class="table-header">
-          <th>種別 / 通/停駅</th>
-          <th>方向</th>
-          <th>時刻</th>
-          <th>車両 (貨)<br>編成 (普)</th>
-          <th>内容 (貨)<br>列番 (普)</th>
-          <th>操作</th>
-        </tr>
-      </table>
-    </div>
-    <div class="controls">
-      <a href="add-train.html" class="add">列車データを追加</a>
-      
-    </div>
-    <div class="background">
-      <div class="background-img">
-        <img src="scenery_08_backboad.jpg" alt="背景">
-      </div>
-    </div>
-    <div class="next-train-info" id="next-train-info">
-      --次列車情報--<br><span id="next-train"></span>
-    </div>
-  </div>
+      /* 列の幅を調整 */
+      th:nth-child(1),
+      td:nth-child(1) {
+        width: 18%;
+      }
 
-  <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      const timetable = JSON.parse(localStorage.getItem("timetable")) || [];
-      const ordinaryTimetable = JSON.parse(localStorage.getItem("ordinaryTimetable")) || [];
-      const table = document.getElementById("timetable");
-      const nextTrainInfo = document.getElementById("next-train-info");
-      const nextTrainElement = document.getElementById("next-train");
-      const showOldTrainsCheckbox = document.getElementById("show-old-trains");
-      const showOrdinaryTrainsCheckbox = document.getElementById("show-ordinary-trains");
+      th:nth-child(2),
+      td:nth-child(2) {
+        width: 10%;
+      }
 
-      // 時刻を比較するための関数（HH:mm形式の文字列であれば十分）
-      const compareTimes = (time1, time2) => {
-        const [hour1, minute1] = time1.split(':').map(num => parseInt(num, 10));
-        const [hour2, minute2] = time2.split(':').map(num => parseInt(num, 10));
-        return hour1 === hour2 ? minute1 - minute2 : hour1 - hour2;
-      };
+      th:nth-child(3),
+      td:nth-child(3) {
+        width: 15%;
+      }
 
-      let combinedTimetable = [];
+      th:nth-child(4),
+      td:nth-child(4) {
+        width: 15%;
+      }
 
-      function renderTable() {
-        table.innerHTML = ` 
+      th:nth-child(5),
+      td:nth-child(5) {
+        width: 22%;
+      }
+
+      th:nth-child(6),
+      td:nth-child(6) {
+        width: 15%;
+      }
+
+      /* 上り列車の方向の背景色（赤） */
+      .direction-up {
+        background-color: #ffcccc; /* 赤色 */
+      }
+
+      /* 下り列車の方向の背景色（青） */
+      .direction-down {
+        background-color: #cce5ff; /* 青色 */
+      }
+
+      /* 種別と通/停駅を上下に並べるためのスタイル */
+      .train-type-and-station {
+        flex-direction: column;
+        align-items: center;
+        padding: 0;
+      }
+
+      .train-type {
+        background-color: #ffa500; /* オレンジ色 */
+        width: 100%;
+        text-align: center;
+      }
+
+      .station {
+        background-color: #b6ff98; /* 緑色 */
+        width: 100%;
+        text-align: center;
+      }
+
+      .train-type-and-station hr {
+        border: 0;
+        border-top: 1px solid #7a7a7a;
+        margin: 0; /* 上下に少し余白を追加 */
+      }
+
+      /* 回送列車の表示スタイル */
+      .train-type-ryousou {
+        background-color: #f9f9f9; /* 薄い灰色 */
+      }
+
+      /* 貨物列車のフォントを太字にする */
+      .freight-font-bold {
+        font-weight: bold;
+      }
+
+      /* 次列車情報のスタイル */
+      .next-train-info {
+        margin-top: 20px;
+        font-size: 1.6rem;
+        font-weight: bold;
+        background-color: #f0f0f0;
+        padding: 10px;
+        border: 1px solid #7a7a7a;
+        border-radius: 5px;
+        text-align: center;
+      }
+
+      /* 点滅アニメーション */
+      @keyframes blink {
+        50% {
+          background-color: yellow;
+        }
+      }
+
+      .blinking {
+        animation: blink 1s step-start 0s infinite;
+      }
+
+      /* 非表示のスタイル */
+      .hidden {
+        display: none;
+      }
+
+      .show-ordinary-trains-label,
+      .show-passed-trains-label {
+        font-size: 1.6rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <label class="show-ordinary-trains-label">
+        <input type="checkbox" id="show-ordinary-trains" checked />
+        普通列車を表示
+      </label>
+      <label class="show-passed-trains-label">
+        <input type="checkbox" id="show-passed-trains" /> 通過済みの列車を表示
+      </label>
+      <div class="timetable">
+        <table id="timetable">
           <tr class="table-header">
-            <th>種別/行先<br>通過駅(貨)</th>
+            <th>種別 / 通/停駅</th>
             <th>方向</th>
             <th>時刻</th>
-            <th>車両 (貨)<br>編成 (普)</th>
-            <th>内容 (貨)<br>列番 (普)</th>
+            <th>車両 (貨)<br />編成 (普)</th>
+            <th>内容 (貨)<br />列番 (普)</th>
             <th>操作</th>
           </tr>
-        `;
+        </table>
+      </div>
+      <div class="controls">
+        <a href="add-train.html" class="add">列車データを追加</a>
+      </div>
+      <div class="background">
+        <div class="background-img">
+          <img src="scenery_08_backboad.jpg" alt="背景" />
+        </div>
+      </div>
+      <div class="next-train-info" id="next-train-info">
+        --次列車情報--<br /><span id="next-train"></span>
+      </div>
+    </div>
 
-        // 貨物列車と普通列車のデータを結合して時刻順にソート
-        combinedTimetable = [...timetable, ...ordinaryTimetable];
-        combinedTimetable.sort((a, b) => compareTimes(a.time, b.time));
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const timetable = JSON.parse(localStorage.getItem("timetable")) || [];
+        const ordinaryTimetable =
+          JSON.parse(localStorage.getItem("ordinaryTimetable")) || [];
+        const table = document.getElementById("timetable");
+        const nextTrainInfo = document.getElementById("next-train-info");
+        const nextTrainElement = document.getElementById("next-train");
+        const showOrdinaryTrainsCheckbox = document.getElementById(
+          "show-ordinary-trains"
+        );
+        const showPassedTrainsCheckbox =
+          document.getElementById("show-passed-trains");
 
-        // 結合したデータの表示
-        combinedTimetable.forEach((train, combinedIndex) => {
-          const row = document.createElement("tr");
+        // 時刻を比較するための関数（HH:mm形式の文字列であれば十分）
+        const compareTimes = (time1, time2) => {
+          const [hour1, minute1] = time1
+            .split(":")
+            .map((num) => parseInt(num, 10));
+          const [hour2, minute2] = time2
+            .split(":")
+            .map((num) => parseInt(num, 10));
+          return hour1 === hour2 ? minute1 - minute2 : hour1 - hour2;
+        };
 
-          // 方向に基づいた色を設定
-          const directionClass = train.direction === '上り' ? 'direction-up' : 'direction-down';
+        let combinedTimetable = [];
 
-          if (train.trainType === '回送') {
-            row.classList.add("train-type-ryousou");
-            row.innerHTML = `
-              <td>回送</td>
-              <td class="${directionClass}">${train.direction}</td>
-              <td>${train.time}</td> <!-- 時刻を表示 -->
-              <td>-</td>
-              <td>-</td>
-              <td>
-                <button onclick="deleteTrain(${combinedIndex}, 'ordinaryTimetable')">削除</button>
-              </td>
-            `;
-          } else if (train.trainType) {
-            // 普通列車の表示
-            row.innerHTML = `
-              <td class="train-type-and-station">
-                <div class="train-type">${train.trainType}</div>
-                <hr /> <!-- 種別と通/停駅の間に線を追加 -->
-                <div class="station">${train.destination}</div>
-              </td>
-              <td class="${directionClass}">${train.direction}</td>
-              <td>${train.time}</td>
-              <td>${train.formation}</td>
-              <td>${train.trainNumber}</td>
-              <td>
-                <button onclick="deleteTrain(${combinedIndex}, 'ordinaryTimetable')">削除</button>
-              </td>
-            `;
-          } else {
-            // 貨物列車の表示
-            row.innerHTML = `
-              <td class="freight-font-bold">${train.station}</td>
-              <td class="freight-font-bold ${directionClass}">${train.direction}</td>
-              <td class="freight-font-bold">${train.time}</td>
-              <td class="freight-font-bold">${train.train}</td>
-              <td class="freight-font-bold">${train.content}</td>
-              <td>
-                <button onclick="deleteTrain(${combinedIndex}, 'timetable')">削除</button>
-              </td>
-            `;
-          }
+        function renderTable() {
+          table.innerHTML = ` 
+    <tr class="table-header">
+      <th>種別/行先<br>通過駅(貨)</th>
+      <th>方向</th>
+      <th>時刻</th>
+      <th>車両 (貨)<br>編成 (普)</th>
+      <th>内容 (貨)<br>列番 (普)</th>
+      <th>操作</th>
+    </tr>
+  `;
 
-          table.appendChild(row);
-        });
+          combinedTimetable = [...timetable, ...ordinaryTimetable];
+          combinedTimetable.sort((a, b) => compareTimes(a.time, b.time));
 
-        updateNextTrainInfo();
-        hideOldTrains();
-        hideOrdinaryTrains();
-      }
+          combinedTimetable.forEach((train, combinedIndex) => {
+            const row = document.createElement("tr");
+            const directionClass =
+              train.direction === "上り" ? "direction-up" : "direction-down";
 
-      // 削除処理
-      window.deleteTrain = (combinedIndex, type) => {
-        console.log(`Deleting train at index ${combinedIndex} from ${type}`);
-        const currentTimetable = type === 'timetable' ? timetable : ordinaryTimetable;
-        const trainIndex = currentTimetable.findIndex(train => combinedTimetable[combinedIndex].time === train.time && combinedTimetable[combinedIndex].trainType === train.trainType);
-        if (trainIndex !== -1 && confirm("この列車データを削除しますか？")) {
-          currentTimetable.splice(trainIndex, 1);
-          localStorage.setItem(type, JSON.stringify(currentTimetable));
-          console.log(`Updated ${type}:`, currentTimetable);
-          renderTable();
+            if (train.trainType === "回送") {
+              row.classList.add("train-type-ryousou");
+              row.innerHTML = `
+        <td>回送</td>
+        <td class="${directionClass}">${train.direction}</td>
+        <td>${train.time}</td>
+        <td>-</td>
+        <td>-</td>
+        <td>
+          <button onclick="deleteTrain(${combinedIndex}, 'ordinaryTimetable')">削除</button>
+        </td>
+      `;
+            } else if (train.trainType) {
+              row.innerHTML = `
+        <td class="train-type-and-station">
+          <div class="train-type">${train.trainType}</div>
+          <hr />
+          <div class="station">${train.destination}</div>
+        </td>
+        <td class="${directionClass}">${train.direction}</td>
+        <td>${train.time}</td>
+        <td>${train.formation}</td>
+        <td>${train.trainNumber}</td>
+        <td>
+          <button onclick="deleteTrain(${combinedIndex}, 'ordinaryTimetable')">削除</button>
+        </td>
+      `;
+            } else {
+              row.innerHTML = `
+        <td class="freight-font-bold">${train.station}</td>
+        <td class="freight-font-bold ${directionClass}">${train.direction}</td>
+        <td class="freight-font-bold">${train.time}</td>
+        <td class="freight-font-bold">${train.train}</td>
+        <td class="freight-font-bold">${train.content}</td>
+        <td>
+          <button onclick="deleteTrain(${combinedIndex}, 'timetable')">削除</button>
+        </td>
+      `;
+            }
+
+            table.appendChild(row);
+          });
+
+          updateNextTrainInfo();
+          hidePassedTrains(); // ここで初回読み込み時に通過済みの列車を非表示にする
+          hideOrdinaryTrains(); // 必要に応じて普通列車も非表示にする
         }
-      };
 
-      function updateNextTrainInfo() {
-        const now = new Date();
-        const currentTime = `${now.getHours()}:${now.getMinutes() < 10 ? '0' : ''}${now.getMinutes()}`;
+        // 削除処理
+        window.deleteTrain = (combinedIndex, type) => {
+          console.log(`Deleting train at index ${combinedIndex} from ${type}`);
+          const currentTimetable =
+            type === "timetable" ? timetable : ordinaryTimetable;
+          const trainIndex = currentTimetable.findIndex(
+            (train) =>
+              combinedTimetable[combinedIndex].time === train.time &&
+              combinedTimetable[combinedIndex].trainType === train.trainType
+          );
+          if (trainIndex !== -1 && confirm("この列車データを削除しますか？")) {
+            currentTimetable.splice(trainIndex, 1);
+            localStorage.setItem(type, JSON.stringify(currentTimetable));
+            console.log(`Updated ${type}:`, currentTimetable);
+            renderTable();
+          }
+        };
 
-        // 次の列車を見つける
-        const nextTrain = combinedTimetable.find(train => compareTimes(train.time, currentTime) > 0);
+        function updateNextTrainInfo() {
+          const now = new Date();
+          const currentTime = `${now.getHours()}:${
+            now.getMinutes() < 10 ? "0" : ""
+          }${now.getMinutes()}`;
 
-        if (nextTrain) {
-          const [nextHour, nextMinute] = nextTrain.time.split(':').map(num => parseInt(num, 10));
-          const timeDifference = (nextHour * 60 + nextMinute) - (now.getHours() * 60 + now.getMinutes());
+          // 次の列車を見つける
+          const nextTrain = combinedTimetable.find(
+            (train) => compareTimes(train.time, currentTime) > 0
+          );
 
-          const trainInfo = nextTrain.trainType ? `${nextTrain.direction}, ${nextTrain.destination}, ${nextTrain.content || nextTrain.trainNumber}` : `${nextTrain.direction}, ${nextTrain.train || nextTrain.formation}, ${nextTrain.content || nextTrain.trainNumber}`;
+          if (nextTrain) {
+            const [nextHour, nextMinute] = nextTrain.time
+              .split(":")
+              .map((num) => parseInt(num, 10));
+            const timeDifference =
+              nextHour * 60 +
+              nextMinute -
+              (now.getHours() * 60 + now.getMinutes());
 
-          nextTrainElement.innerHTML = ''; // Clear previous content
+            const trainInfo = nextTrain.trainType
+              ? `${nextTrain.direction}, ${nextTrain.destination}, ${
+                  nextTrain.content || nextTrain.trainNumber
+                }`
+              : `${nextTrain.direction}, ${
+                  nextTrain.train || nextTrain.formation
+                }, ${nextTrain.content || nextTrain.trainNumber}`;
 
-          if (timeDifference <= 5) {
-            nextTrainElement.textContent = `まもなく：${trainInfo}が通過します`;
-            nextTrainElement.appendChild(document.createElement("br")); // 改行
-            nextTrainElement.appendChild(document.createTextNode(`通過まで残り${timeDifference}分`)); // 残り時間
+            nextTrainElement.innerHTML = ""; // Clear previous content
 
-            // 点滅効果を追加
-            const rows = table.getElementsByTagName("tr");
-            for (let i = 1; i < rows.length; i++) {
-              const cells = rows[i].getElementsByTagName("td");
-              if (cells[2].textContent === nextTrain.time) {
-                rows[i].classList.add("blinking");
-              } else {
+            if (timeDifference <= 5) {
+              nextTrainElement.textContent = `まもなく：${trainInfo}が通過します`;
+              nextTrainElement.appendChild(document.createElement("br")); // 改行
+              nextTrainElement.appendChild(
+                document.createTextNode(`通過まで残り${timeDifference}分`)
+              ); // 残り時間
+
+              // 点滅効果を追加
+              const rows = table.getElementsByTagName("tr");
+              for (let i = 1; i < rows.length; i++) {
+                const cells = rows[i].getElementsByTagName("td");
+                if (cells[2].textContent === nextTrain.time) {
+                  rows[i].classList.add("blinking");
+                } else {
+                  rows[i].classList.remove("blinking");
+                }
+              }
+            } else {
+              const hours = Math.floor(timeDifference / 60);
+              const minutes = timeDifference % 60;
+              const timeText =
+                hours > 0
+                  ? `${hours}時間${minutes}分後に通過`
+                  : `${minutes}分後に通過`;
+
+              nextTrainElement.textContent = trainInfo; // 1行目
+              nextTrainElement.appendChild(document.createElement("br")); // 改行
+              nextTrainElement.appendChild(document.createTextNode(timeText)); // 2行目
+
+              // 点滅効果を削除
+              const rows = table.getElementsByTagName("tr");
+              for (let i = 1; i < rows.length; i++) {
                 rows[i].classList.remove("blinking");
               }
             }
           } else {
-            const hours = Math.floor(timeDifference / 60);
-            const minutes = timeDifference % 60;
-            const timeText = hours > 0 ? `${hours}時間${minutes}分後に通過` : `${minutes}分後に通過`;
+            nextTrainElement.textContent = "次の列車はありません";
+          }
+        }
 
-            nextTrainElement.textContent = trainInfo; // 1行目
-            nextTrainElement.appendChild(document.createElement("br")); // 改行
-            nextTrainElement.appendChild(document.createTextNode(timeText)); // 2行目
+        function hidePassedTrains() {
+          const now = new Date();
+          const currentTimeInMinutes = now.getHours() * 60 + now.getMinutes();
+          const showPassedTrains = showPassedTrainsCheckbox.checked;
 
-            // 点滅効果を削除
-            const rows = table.getElementsByTagName("tr");
-            for (let i = 1; i < rows.length; i++) {
-              rows[i].classList.remove("blinking");
+          console.log("現在時刻:", now, "分換算:", currentTimeInMinutes); // 現在時刻のログ
+
+          const rows = table.getElementsByTagName("tr");
+          for (let i = 1; i < rows.length; i++) {
+            const cells = rows[i].getElementsByTagName("td");
+            if (!cells[2]) continue; // 時刻がない行はスキップ
+
+            const [trainHour, trainMinute] = cells[2].textContent
+              .split(":")
+              .map((num) => parseInt(num, 10));
+            const trainTimeInMinutes = trainHour * 60 + trainMinute;
+
+            console.log(
+              `列車${i}:`,
+              cells[2].textContent,
+              "分換算:",
+              trainTimeInMinutes
+            ); // 列車時刻のログ
+
+            if (
+              !showPassedTrains &&
+              trainTimeInMinutes < currentTimeInMinutes
+            ) {
+              rows[i].classList.add("hidden");
+              console.log(`列車${i}: 非表示`); // 非表示処理のログ
+            } else {
+              rows[i].classList.remove("hidden");
+              console.log(`列車${i}: 表示`); // 表示処理のログ
             }
           }
-        } else {
-          nextTrainElement.textContent = '次の列車はありません';
         }
-      }
 
-      function hideOldTrains() {
-        const now = new Date();
-        const currentTimeInMinutes = now.getHours() * 60 + now.getMinutes();
-        const showOldTrains = showOldTrainsCheckbox.checked;
+        function hideOrdinaryTrains() {
+          const showOrdinaryTrains = showOrdinaryTrainsCheckbox.checked;
 
-        // 1時間前のデータを非表示にする
-        const rows = table.getElementsByTagName("tr");
-        for (let i = 1; i < rows.length; i++) {
-          const cells = rows[i].getElementsByTagName("td");
-          const [trainHour, trainMinute] = cells[2].textContent.split(':').map(num => parseInt(num, 10));
-          const trainTimeInMinutes = trainHour * 60 + trainMinute;
-          if (!showOldTrains && trainTimeInMinutes < currentTimeInMinutes - 60) {
-            rows[i].classList.add("hidden");
-          } else {
-            rows[i].classList.remove("hidden");
+          // 普通列車のデータを非表示にする
+          const rows = table.getElementsByTagName("tr");
+          for (let i = 1; i < rows.length; i++) {
+            const cells = rows[i].getElementsByTagName("td");
+            if (
+              !showOrdinaryTrains &&
+              cells[0].classList.contains("train-type-and-station")
+            ) {
+              rows[i].classList.add("hidden");
+            } else if (
+              showOrdinaryTrains &&
+              cells[0].classList.contains("train-type-and-station")
+            ) {
+              rows[i].classList.remove("hidden");
+            }
           }
         }
-      }
 
-      function hideOrdinaryTrains() {
-        const showOrdinaryTrains = showOrdinaryTrainsCheckbox.checked;
+        // 1秒ごとに次列車情報を更新
+        setInterval(updateNextTrainInfo, 1000);
+        // 1秒ごとに通過済みの列車を非表示にする
+        setInterval(hidePassedTrains, 1000);
+        // 1秒ごとに普通列車を非表示にする
+        setInterval(hideOrdinaryTrains, 1000);
 
-        // 普通列車のデータを非表示にする
-        const rows = table.getElementsByTagName("tr");
-        for (let i = 1; i < rows.length; i++) {
-          const cells = rows[i].getElementsByTagName("td");
-          if (!showOrdinaryTrains && cells[0].classList.contains("train-type-and-station")) {
-            rows[i].classList.add("hidden");
-          } else {
-            rows[i].classList.remove("hidden");
-          }
-        }
-      }
+        // チェックボックスの変更を監視
+        showPassedTrainsCheckbox.addEventListener("change", hidePassedTrains);
+        showOrdinaryTrainsCheckbox.addEventListener(
+          "change",
+          hideOrdinaryTrains
+        );
 
-      // 1秒ごとに次列車情報を更新
-      setInterval(updateNextTrainInfo, 1000);
-      // 1秒ごとに古い列車を非表示にする
-      setInterval(hideOldTrains, 1000);
-      // 1秒ごとに普通列車を非表示にする
-      setInterval(hideOrdinaryTrains, 1000);
-
-      // チェックボックスの変更を監視
-      showOldTrainsCheckbox.addEventListener("change", hideOldTrains);
-      showOrdinaryTrainsCheckbox.addEventListener("change", hideOrdinaryTrains);
-
-      renderTable();
-    });
-  </script>
-</body>
+        renderTable();
+        document.addEventListener("DOMContentLoaded", () => {
+          renderTable(); // 初回テーブルの描画
+        });
+      });
+    </script>
+  </body>
 </html>
