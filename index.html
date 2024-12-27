@@ -170,33 +170,33 @@
 
     <script>
       document.addEventListener("DOMContentLoaded", () => {
-        const timetable = JSON.parse(localStorage.getItem("timetable")) || [];
-        const ordinaryTimetable =
-          JSON.parse(localStorage.getItem("ordinaryTimetable")) || [];
-        const table = document.getElementById("timetable");
-        const nextTrainInfo = document.getElementById("next-train-info");
-        const nextTrainElement = document.getElementById("next-train");
-        const showOrdinaryTrainsCheckbox = document.getElementById(
-          "show-ordinary-trains"
-        );
-        const showPassedTrainsCheckbox =
-          document.getElementById("show-passed-trains");
+      const timetable = JSON.parse(localStorage.getItem("timetable")) || [];
+      const ordinaryTimetable =
+        JSON.parse(localStorage.getItem("ordinaryTimetable")) || [];
+      const table = document.getElementById("timetable");
+      const nextTrainInfo = document.getElementById("next-train-info");
+      const nextTrainElement = document.getElementById("next-train");
+      const showOrdinaryTrainsCheckbox = document.getElementById(
+        "show-ordinary-trains"
+      );
+      const showPassedTrainsCheckbox =
+        document.getElementById("show-passed-trains");
 
-        // 時刻を比較するための関数（HH:mm形式の文字列であれば十分）
-        const compareTimes = (time1, time2) => {
-          const [hour1, minute1] = time1
-            .split(":")
-            .map((num) => parseInt(num, 10));
-          const [hour2, minute2] = time2
-            .split(":")
-            .map((num) => parseInt(num, 10));
-          return hour1 === hour2 ? minute1 - minute2 : hour1 - hour2;
-        };
+      // 時刻を比較するための関数（HH:mm形式の文字列であれば十分）
+      const compareTimes = (time1, time2) => {
+        const [hour1, minute1] = time1
+        .split(":")
+        .map((num) => parseInt(num, 10));
+        const [hour2, minute2] = time2
+        .split(":")
+        .map((num) => parseInt(num, 10));
+        return hour1 === hour2 ? minute1 - minute2 : hour1 - hour2;
+      };
 
-        let combinedTimetable = [];
+      let combinedTimetable = [];
 
-        function renderTable() {
-          table.innerHTML = ` 
+      function renderTable() {
+        table.innerHTML = ` 
     <tr class="table-header">
       <th>種別/行先<br>通過駅(貨)</th>
       <th>方向</th>
@@ -205,220 +205,220 @@
       <th>内容 (貨)<br>列番 (普)</th>
       <th>操作</th>
     </tr>
-  `;
+    `;
 
-          combinedTimetable = [...timetable, ...ordinaryTimetable];
-          combinedTimetable.sort((a, b) => compareTimes(a.time, b.time));
+        combinedTimetable = [...timetable, ...ordinaryTimetable];
+        combinedTimetable.sort((a, b) => compareTimes(a.time, b.time));
 
-          combinedTimetable.forEach((train, combinedIndex) => {
-            const row = document.createElement("tr");
-            const directionClass =
-              train.direction === "上り" ? "direction-up" : "direction-down";
+        combinedTimetable.forEach((train, combinedIndex) => {
+        const row = document.createElement("tr");
+        const directionClass =
+          train.direction === "上り" ? "direction-up" : "direction-down";
 
-            if (train.trainType === "回送") {
-              row.classList.add("train-type-ryousou");
-              row.innerHTML = `
-        <td>回送</td>
-        <td class="${directionClass}">${train.direction}</td>
-        <td>${train.time}</td>
-        <td>-</td>
-        <td>-</td>
-        <td>
-          <button onclick="deleteTrain(${combinedIndex}, 'ordinaryTimetable')">削除</button>
-        </td>
+        if (train.trainType === "回送") {
+          row.classList.add("train-type-ryousou");
+          row.innerHTML = `
+      <td>回送</td>
+      <td class="${directionClass}">${train.direction}</td>
+      <td>${train.time}</td>
+      <td>-</td>
+      <td>-</td>
+      <td>
+        <button onclick="deleteTrain(${combinedIndex}, 'ordinaryTimetable')">削除</button>
+      </td>
       `;
-            } else if (train.trainType) {
-              row.innerHTML = `
-        <td class="train-type-and-station">
-          <div class="train-type">${train.trainType}</div>
-          <hr />
-          <div class="station">${train.destination}</div>
-        </td>
-        <td class="${directionClass}">${train.direction}</td>
-        <td>${train.time}</td>
-        <td>${train.formation}</td>
-        <td>${train.trainNumber}</td>
-        <td>
-          <button onclick="deleteTrain(${combinedIndex}, 'ordinaryTimetable')">削除</button>
-        </td>
+        } else if (train.trainType) {
+          row.innerHTML = `
+      <td class="train-type-and-station">
+        <div class="train-type">${train.trainType}</div>
+        <hr />
+        <div class="station">${train.destination}</div>
+      </td>
+      <td class="${directionClass}">${train.direction}</td>
+      <td>${train.time}</td>
+      <td>${train.formation}</td>
+      <td>${train.trainNumber}</td>
+      <td>
+        <button onclick="deleteTrain(${combinedIndex}, 'ordinaryTimetable')">削除</button>
+      </td>
       `;
-            } else {
-              row.innerHTML = `
-        <td class="freight-font-bold">${train.station}</td>
-        <td class="freight-font-bold ${directionClass}">${train.direction}</td>
-        <td class="freight-font-bold">${train.time}</td>
-        <td class="freight-font-bold">${train.train}</td>
-        <td class="freight-font-bold">${train.content}</td>
-        <td>
-          <button onclick="deleteTrain(${combinedIndex}, 'timetable')">削除</button>
-        </td>
+        } else {
+          row.innerHTML = `
+      <td class="freight-font-bold">${train.station}</td>
+      <td class="freight-font-bold ${directionClass}">${train.direction}</td>
+      <td class="freight-font-bold">${train.time}</td>
+      <td class="freight-font-bold">${train.train}</td>
+      <td class="freight-font-bold">${train.content}</td>
+      <td>
+        <button onclick="deleteTrain(${combinedIndex}, 'timetable')">削除</button>
+      </td>
       `;
-            }
-
-            table.appendChild(row);
-          });
-
-          updateNextTrainInfo();
-          hidePassedTrains(); // ここで初回読み込み時に通過済みの列車を非表示にする
-          hideOrdinaryTrains(); // 必要に応じて普通列車も非表示にする
         }
 
-        // 削除処理
-        window.deleteTrain = (combinedIndex, type) => {
-          console.log(`Deleting train at index ${combinedIndex} from ${type}`);
-          const currentTimetable =
-            type === "timetable" ? timetable : ordinaryTimetable;
-          const trainIndex = currentTimetable.findIndex(
-            (train) =>
-              combinedTimetable[combinedIndex].time === train.time &&
-              combinedTimetable[combinedIndex].trainType === train.trainType
-          );
-          if (trainIndex !== -1 && confirm("この列車データを削除しますか？")) {
-            currentTimetable.splice(trainIndex, 1);
-            localStorage.setItem(type, JSON.stringify(currentTimetable));
-            console.log(`Updated ${type}:`, currentTimetable);
-            renderTable();
-          }
-        };
+        table.appendChild(row);
+        });
 
-        function updateNextTrainInfo() {
-          const now = new Date();
-          const currentTime = `${now.getHours()}:${
-            now.getMinutes() < 10 ? "0" : ""
-          }${now.getMinutes()}`;
+        updateNextTrainInfo();
+        hidePassedTrains(); // ここで初回読み込み時に通過済みの列車を非表示にする
+        hideOrdinaryTrains(); // 必要に応じて普通列車も非表示にする
+      }
 
-          // 次の列車を見つける
-          const nextTrain = combinedTimetable.find(
-            (train) => compareTimes(train.time, currentTime) > 0
-          );
-
-          if (nextTrain) {
-            const [nextHour, nextMinute] = nextTrain.time
-              .split(":")
-              .map((num) => parseInt(num, 10));
-            const timeDifference =
-              nextHour * 60 +
-              nextMinute -
-              (now.getHours() * 60 + now.getMinutes());
-
-            const trainInfo = nextTrain.trainType
-              ? `${nextTrain.direction}, ${nextTrain.destination}, ${
-                  nextTrain.content || nextTrain.trainNumber
-                }`
-              : `${nextTrain.direction}, ${
-                  nextTrain.train || nextTrain.formation
-                }, ${nextTrain.content || nextTrain.trainNumber}`;
-
-            nextTrainElement.innerHTML = ""; // Clear previous content
-
-            if (timeDifference <= 5) {
-              nextTrainElement.textContent = `まもなく：${trainInfo}が通過します`;
-              nextTrainElement.appendChild(document.createElement("br")); // 改行
-              nextTrainElement.appendChild(
-                document.createTextNode(`通過まで残り${timeDifference}分`)
-              ); // 残り時間
-
-              // 点滅効果を追加
-              const rows = table.getElementsByTagName("tr");
-              for (let i = 1; i < rows.length; i++) {
-                const cells = rows[i].getElementsByTagName("td");
-                if (cells[2].textContent === nextTrain.time) {
-                  rows[i].classList.add("blinking");
-                } else {
-                  rows[i].classList.remove("blinking");
-                }
-              }
-            } else {
-              const hours = Math.floor(timeDifference / 60);
-              const minutes = timeDifference % 60;
-              const timeText =
-                hours > 0
-                  ? `${hours}時間${minutes}分後に通過`
-                  : `${minutes}分後に通過`;
-
-              nextTrainElement.textContent = trainInfo; // 1行目
-              nextTrainElement.appendChild(document.createElement("br")); // 改行
-              nextTrainElement.appendChild(document.createTextNode(timeText)); // 2行目
-
-              // 点滅効果を削除
-              const rows = table.getElementsByTagName("tr");
-              for (let i = 1; i < rows.length; i++) {
-                rows[i].classList.remove("blinking");
-              }
-            }
-          } else {
-            nextTrainElement.textContent = "次の列車はありません";
-          }
+      // 削除処理
+      window.deleteTrain = (combinedIndex, type) => {
+        console.log(`Deleting train at index ${combinedIndex} from ${type}`);
+        const currentTimetable =
+        type === "timetable" ? timetable : ordinaryTimetable;
+        const trainIndex = currentTimetable.findIndex(
+        (train) =>
+          combinedTimetable[combinedIndex].time === train.time &&
+          combinedTimetable[combinedIndex].trainType === train.trainType
+        );
+        if (trainIndex !== -1 && confirm("この列車データを削除しますか？")) {
+        currentTimetable.splice(trainIndex, 1);
+        localStorage.setItem(type, JSON.stringify(currentTimetable));
+        console.log(`Updated ${type}:`, currentTimetable);
+        renderTable();
         }
+      };
 
-        function hidePassedTrains() {
-          const now = new Date();
-          const currentTimeInMinutes = now.getHours() * 60 + now.getMinutes();
-          const showPassedTrains = showPassedTrainsCheckbox.checked;
+      function updateNextTrainInfo() {
+        const now = new Date();
+        const currentTime = `${now.getHours()}:${
+        now.getMinutes() < 10 ? "0" : ""
+        }${now.getMinutes()}`;
 
-          const rows = table.getElementsByTagName("tr");
-          for (let i = 1; i < rows.length; i++) {
-            const cells = rows[i].getElementsByTagName("td");
-            if (!cells[2]) continue; // 時刻がない行はスキップ
-
-            const [trainHour, trainMinute] = cells[2].textContent
-              .split(":")
-              .map((num) => parseInt(num, 10));
-            const trainTimeInMinutes = trainHour * 60 + trainMinute;
-
-            if (
-              !showPassedTrains &&
-              trainTimeInMinutes < currentTimeInMinutes
-            ) {
-              rows[i].classList.add("hidden");
-            } else {
-              rows[i].classList.remove("hidden");
-            }
-          }
-        }
-
-        function hideOrdinaryTrains() {
-          const showOrdinaryTrains = showOrdinaryTrainsCheckbox.checked;
-          const showPassedTrains = showPassedTrainsCheckbox.checked;
-          const now = new Date();
-          const currentTimeInMinutes = now.getHours() * 60 + now.getMinutes();
-
-          // 普通列車のデータを非表示にする
-          const rows = table.getElementsByTagName("tr");
-          for (let i = 1; i < rows.length; i++) {
-            const cells = rows[i].getElementsByTagName("td");
-            const isOrdinaryTrain = cells[0].classList.contains("train-type-and-station");
-
-            if (isOrdinaryTrain) {
-              const [trainHour, trainMinute] = cells[2].textContent
-                .split(":")
-                .map((num) => parseInt(num, 10));
-              const trainTimeInMinutes = trainHour * 60 + trainMinute;
-
-              if (!showOrdinaryTrains || (!showPassedTrains && trainTimeInMinutes < currentTimeInMinutes)) {
-                rows[i].classList.add("hidden");
-              } else {
-                rows[i].classList.remove("hidden");
-              }
-            }
-          }
-        }
-
-        // 1秒ごとに次列車情報を更新
-        setInterval(updateNextTrainInfo, 1000);
-        // 1秒ごとに通過済みの列車を非表示にする
-        setInterval(hidePassedTrains, 1000);
-        // 1秒ごとに普通列車を非表示にする
-        setInterval(hideOrdinaryTrains, 1000);
-
-        // チェックボックスの変更を監視
-        showPassedTrainsCheckbox.addEventListener("change", hidePassedTrains);
-        showOrdinaryTrainsCheckbox.addEventListener(
-          "change",
-          hideOrdinaryTrains
+        // 次の列車を見つける
+        const nextTrain = combinedTimetable.find(
+        (train) => compareTimes(train.time, currentTime) > 0
         );
 
-        renderTable();
+        if (nextTrain) {
+        const [nextHour, nextMinute] = nextTrain.time
+          .split(":")
+          .map((num) => parseInt(num, 10));
+        const timeDifference =
+          nextHour * 60 +
+          nextMinute -
+          (now.getHours() * 60 + now.getMinutes());
+
+        const trainInfo = nextTrain.trainType
+          ? `${nextTrain.direction}, ${nextTrain.destination}, ${
+            nextTrain.content || nextTrain.trainNumber
+          }`
+          : `${nextTrain.direction}, ${
+            nextTrain.train || nextTrain.formation
+          }, ${nextTrain.content || nextTrain.trainNumber}`;
+
+        nextTrainElement.innerHTML = ""; // Clear previous content
+
+        if (timeDifference <= 5) {
+          nextTrainElement.textContent = `まもなく：${trainInfo}が通過します`;
+          nextTrainElement.appendChild(document.createElement("br")); // 改行
+          nextTrainElement.appendChild(
+          document.createTextNode(`通過まで残り${timeDifference}分`)
+          ); // 残り時間
+
+          // 点滅効果を追加
+          const rows = table.getElementsByTagName("tr");
+          for (let i = 1; i < rows.length; i++) {
+          const cells = rows[i].getElementsByTagName("td");
+          if (cells[2].textContent === nextTrain.time) {
+            rows[i].classList.add("blinking");
+          } else {
+            rows[i].classList.remove("blinking");
+          }
+          }
+        } else {
+          const hours = Math.floor(timeDifference / 60);
+          const minutes = timeDifference % 60;
+          const timeText =
+          hours > 0
+            ? `${hours}時間${minutes}分後に通過`
+            : `${minutes}分後に通過`;
+
+          nextTrainElement.textContent = trainInfo; // 1行目
+          nextTrainElement.appendChild(document.createElement("br")); // 改行
+          nextTrainElement.appendChild(document.createTextNode(timeText)); // 2行目
+
+          // 点滅効果を削除
+          const rows = table.getElementsByTagName("tr");
+          for (let i = 1; i < rows.length; i++) {
+          rows[i].classList.remove("blinking");
+          }
+        }
+        } else {
+        nextTrainElement.textContent = "次の列車はありません";
+        }
+      }
+
+      function hidePassedTrains() {
+        const now = new Date();
+        const currentTimeInMinutes = now.getHours() * 60 + now.getMinutes();
+        const showPassedTrains = showPassedTrainsCheckbox.checked;
+
+        const rows = table.getElementsByTagName("tr");
+        for (let i = 1; i < rows.length; i++) {
+        const cells = rows[i].getElementsByTagName("td");
+        if (!cells[2]) continue; // 時刻がない行はスキップ
+
+        const [trainHour, trainMinute] = cells[2].textContent
+          .split(":")
+          .map((num) => parseInt(num, 10));
+        const trainTimeInMinutes = trainHour * 60 + trainMinute;
+
+        if (
+          !showPassedTrains &&
+          trainTimeInMinutes < currentTimeInMinutes
+        ) {
+          rows[i].classList.add("hidden");
+        } else {
+          rows[i].classList.remove("hidden");
+        }
+        }
+      }
+
+      function hideOrdinaryTrains() {
+        const showOrdinaryTrains = showOrdinaryTrainsCheckbox.checked;
+        const showPassedTrains = showPassedTrainsCheckbox.checked;
+        const now = new Date();
+        const currentTimeInMinutes = now.getHours() * 60 + now.getMinutes();
+
+        // 普通列車のデータを非表示にする
+        const rows = table.getElementsByTagName("tr");
+        for (let i = 1; i < rows.length; i++) {
+        const cells = rows[i].getElementsByTagName("td");
+        const isOrdinaryTrain = cells[0].classList.contains("train-type-and-station");
+
+        if (isOrdinaryTrain) {
+          const [trainHour, trainMinute] = cells[2].textContent
+          .split(":")
+          .map((num) => parseInt(num, 10));
+          const trainTimeInMinutes = trainHour * 60 + trainMinute;
+
+          if (!showOrdinaryTrains || (!showPassedTrains && trainTimeInMinutes < currentTimeInMinutes)) {
+          rows[i].style.display = "none";
+          } else {
+          rows[i].style.display = "";
+          }
+        }
+        }
+      }
+
+      // 1秒ごとに次列車情報を更新
+      setInterval(updateNextTrainInfo, 1000);
+      // 1秒ごとに通過済みの列車を非表示にする
+      setInterval(hidePassedTrains, 1000);
+      // 1秒ごとに普通列車を非表示にする
+      setInterval(hideOrdinaryTrains, 1000);
+
+      // チェックボックスの変更を監視
+      showPassedTrainsCheckbox.addEventListener("change", hidePassedTrains);
+      showOrdinaryTrainsCheckbox.addEventListener(
+        "change",
+        hideOrdinaryTrains
+      );
+
+      renderTable();
       });
     </script>
   </body>
