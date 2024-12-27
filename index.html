@@ -120,10 +120,17 @@
     .hidden {
       display: none;
     }
+
+    .show-old-trains-label {
+      font-size: 1.6rem;
+    }
   </style>
 </head>
 <body>
   <div class="container">
+    <label class="show-old-trains-label">
+      <input type="checkbox" id="show-old-trains" checked> 1時間前のデータを表示
+    </label>
     <div class="timetable">
       <table id="timetable">
         <tr class="table-header">
@@ -138,6 +145,7 @@
     </div>
     <div class="controls">
       <a href="add-train.html" class="add">列車データを追加</a>
+      
     </div>
     <div class="background">
       <div class="background-img">
@@ -156,6 +164,7 @@
       const table = document.getElementById("timetable");
       const nextTrainInfo = document.getElementById("next-train-info");
       const nextTrainElement = document.getElementById("next-train");
+      const showOldTrainsCheckbox = document.getElementById("show-old-trains");
 
       // 時刻を比較するための関数（HH:mm形式の文字列であれば十分）
       const compareTimes = (time1, time2) => {
@@ -304,6 +313,7 @@
       function hideOldTrains() {
         const now = new Date();
         const currentTimeInMinutes = now.getHours() * 60 + now.getMinutes();
+        const showOldTrains = showOldTrainsCheckbox.checked;
 
         // 1時間前のデータを非表示にする
         const rows = table.getElementsByTagName("tr");
@@ -311,7 +321,7 @@
           const cells = rows[i].getElementsByTagName("td");
           const [trainHour, trainMinute] = cells[2].textContent.split(':').map(num => parseInt(num, 10));
           const trainTimeInMinutes = trainHour * 60 + trainMinute;
-          if (trainTimeInMinutes < currentTimeInMinutes - 59 && currentTimeInMinutes < 1440) {
+          if (!showOldTrains && trainTimeInMinutes < currentTimeInMinutes - 59 && currentTimeInMinutes < 1440) {
             rows[i].classList.add("hidden");
           } else {
             rows[i].classList.remove("hidden");
@@ -323,6 +333,9 @@
       setInterval(updateNextTrainInfo, 1000);
       // 1秒ごとに古い列車を非表示にする
       setInterval(hideOldTrains, 1000);
+
+      // チェックボックスの変更を監視
+      showOldTrainsCheckbox.addEventListener("change", hideOldTrains);
 
       renderTable();
     });
