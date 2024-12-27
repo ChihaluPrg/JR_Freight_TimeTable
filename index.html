@@ -356,8 +356,6 @@
           const currentTimeInMinutes = now.getHours() * 60 + now.getMinutes();
           const showPassedTrains = showPassedTrainsCheckbox.checked;
 
-          console.log("現在時刻:", now, "分換算:", currentTimeInMinutes); // 現在時刻のログ
-
           const rows = table.getElementsByTagName("tr");
           for (let i = 1; i < rows.length; i++) {
             const cells = rows[i].getElementsByTagName("td");
@@ -368,22 +366,13 @@
               .map((num) => parseInt(num, 10));
             const trainTimeInMinutes = trainHour * 60 + trainMinute;
 
-            console.log(
-              `列車${i}:`,
-              cells[2].textContent,
-              "分換算:",
-              trainTimeInMinutes
-            ); // 列車時刻のログ
-
             if (
               !showPassedTrains &&
               trainTimeInMinutes < currentTimeInMinutes
             ) {
               rows[i].classList.add("hidden");
-              console.log(`列車${i}: 非表示`); // 非表示処理のログ
             } else {
               rows[i].classList.remove("hidden");
-              console.log(`列車${i}: 表示`); // 表示処理のログ
             }
           }
         }
