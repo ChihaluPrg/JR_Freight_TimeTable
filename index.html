@@ -91,6 +91,13 @@
     .freight-font-bold {
       font-weight: bold;
     }
+
+    /* 次列車情報のスタイル */
+    .next-train-info {
+      margin-top: 20px;
+      font-size: 1.2em;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
@@ -99,9 +106,10 @@
       <table id="timetable">
         <tr class="table-header">
           <th>種別 / 通/停駅</th>
-          <th>通/停時刻</th>
-          <th>車両</th>
-          <th>内容</th>
+          <th>方向</th>
+          <th>時刻</th>
+          <th>車両 (貨)<br>編成 (普)</th>
+          <th>内容 (貨)<br>列番 (普)</th>
           <th>操作</th>
         </tr>
       </table>
@@ -114,6 +122,9 @@
         <img src="scenery_08_backboad.jpg" alt="背景">
       </div>
     </div>
+    <div class="next-train-info" id="next-train-info">
+      次列車情報：<span id="next-train"></span>
+    </div>
   </div>
 
   <script>
@@ -121,6 +132,8 @@
       const timetable = JSON.parse(localStorage.getItem("timetable")) || [];
       const ordinaryTimetable = JSON.parse(localStorage.getItem("ordinaryTimetable")) || [];
       const table = document.getElementById("timetable");
+      const nextTrainInfo = document.getElementById("next-train-info");
+      const nextTrainElement = document.getElementById("next-train");
 
       // 時刻を比較するための関数（HH:mm形式の文字列であれば十分）
       const compareTimes = (time1, time2) => {
@@ -199,20 +212,47 @@
         });
       }
 
-       // 削除処理
-       window.deleteTrain = (combinedIndex, type) => {
-          console.log(`Deleting train at index ${combinedIndex} from ${type}`);
-          const currentTimetable = type === 'timetable' ? timetable : ordinaryTimetable;
-          const trainIndex = currentTimetable.findIndex(train => combinedTimetable[combinedIndex].time === train.time && combinedTimetable[combinedIndex].trainType === train.trainType);
-          if (trainIndex !== -1 && confirm("この列車データを削除しますか？")) {
-            currentTimetable.splice(trainIndex, 1);
-            localStorage.setItem(type, JSON.stringify(currentTimetable));
-            console.log(`Updated ${type}:`, currentTimetable);
-            renderTable();
+      // 削除処理
+      window.deleteTrain = (combinedIndex, type) => {
+        console.log(`Deleting train at index ${combinedIndex} from ${type}`);
+        const currentTimetable = type === 'timetable' ? timetable : ordinaryTimetable;
+        const trainIndex = currentTimetable.findIndex(train => combinedTimetable[combinedIndex].time === train.time && combinedTimetable[combinedIndex].trainType === train.trainType);
+        if (trainIndex !== -1 && confirm("この列車データを削除しますか？")) {
+          currentTimetable.splice(trainIndex, 1);
+          localStorage.setItem(type, JSON.stringify(currentTimetable));
+          console.log(`Updated ${type}:`, currentTimetable);
+          renderTable();
+        }
+      };
+
+      function updateNextTrainInfo() {
+        const now = new Date();
+        const currentTime = `${now.getHours()}:${now.getMinutes() < 10 ? '0' : ''}${now.getMinutes()}`;
+
+        // 次の列車を見つける
+        const nextTrain = combinedTimetable.find(train => compareTimes(train.time, currentTime) > 0);
+
+        if (nextTrain) {
+          const [nextHour, nextMinute] = nextTrain.time.split(':').map(num => parseInt(num, 10));
+          const timeDifference = (nextHour * 60 + nextMinute) - (now.getHours() * 60 + now.getMinutes());
+
+          const trainInfo = `${nextTrain.trainType || '貨物列車'} / ${nextTrain.station || nextTrain.destination}, ${nextTrain.direction}, ${nextTrain.train || nextTrain.formation}, ${nextTrain.content || nextTrain.trainNumber}`;
+
+          if (timeDifference <= 5) {
+            nextTrainElement.textContent = `まもなく：${trainInfo}が通過します`;
+          } else {
+            nextTrainElement.textContent = `${trainInfo} ${timeDifference}分後に通過`;
           }
-        };
-  
-        renderTable();
+        } else {
+          nextTrainElement.textContent = '次の列車はありません';
+        }
+      }
+
+      // 1分ごとに次列車情報を更新
+      setInterval(updateNextTrainInfo, 60000);
+
+      renderTable();
+      updateNextTrainInfo();
     });
   </script>
 </body>
