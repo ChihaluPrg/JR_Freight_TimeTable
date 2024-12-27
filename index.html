@@ -121,7 +121,7 @@
       display: none;
     }
 
-    .show-old-trains-label {
+    .show-old-trains-label, .show-ordinary-trains-label {
       font-size: 1.6rem;
     }
   </style>
@@ -130,6 +130,9 @@
   <div class="container">
     <label class="show-old-trains-label">
       <input type="checkbox" id="show-old-trains" checked> 1時間前のデータを表示
+    </label>
+    <label class="show-ordinary-trains-label">
+      <input type="checkbox" id="show-ordinary-trains" checked> 普通列車を表示
     </label>
     <div class="timetable">
       <table id="timetable">
@@ -165,6 +168,7 @@
       const nextTrainInfo = document.getElementById("next-train-info");
       const nextTrainElement = document.getElementById("next-train");
       const showOldTrainsCheckbox = document.getElementById("show-old-trains");
+      const showOrdinaryTrainsCheckbox = document.getElementById("show-ordinary-trains");
 
       // 時刻を比較するための関数（HH:mm形式の文字列であれば十分）
       const compareTimes = (time1, time2) => {
@@ -245,6 +249,7 @@
 
         updateNextTrainInfo();
         hideOldTrains();
+        hideOrdinaryTrains();
       }
 
       // 削除処理
@@ -321,7 +326,22 @@
           const cells = rows[i].getElementsByTagName("td");
           const [trainHour, trainMinute] = cells[2].textContent.split(':').map(num => parseInt(num, 10));
           const trainTimeInMinutes = trainHour * 60 + trainMinute;
-          if (!showOldTrains && trainTimeInMinutes < currentTimeInMinutes - 59 && currentTimeInMinutes < 1440) {
+          if (!showOldTrains && trainTimeInMinutes < currentTimeInMinutes - 60) {
+            rows[i].classList.add("hidden");
+          } else {
+            rows[i].classList.remove("hidden");
+          }
+        }
+      }
+
+      function hideOrdinaryTrains() {
+        const showOrdinaryTrains = showOrdinaryTrainsCheckbox.checked;
+
+        // 普通列車のデータを非表示にする
+        const rows = table.getElementsByTagName("tr");
+        for (let i = 1; i < rows.length; i++) {
+          const cells = rows[i].getElementsByTagName("td");
+          if (!showOrdinaryTrains && cells[0].classList.contains("train-type-and-station")) {
             rows[i].classList.add("hidden");
           } else {
             rows[i].classList.remove("hidden");
@@ -333,9 +353,12 @@
       setInterval(updateNextTrainInfo, 1000);
       // 1秒ごとに古い列車を非表示にする
       setInterval(hideOldTrains, 1000);
+      // 1秒ごとに普通列車を非表示にする
+      setInterval(hideOrdinaryTrains, 1000);
 
       // チェックボックスの変更を監視
       showOldTrainsCheckbox.addEventListener("change", hideOldTrains);
+      showOrdinaryTrainsCheckbox.addEventListener("change", hideOrdinaryTrains);
 
       renderTable();
     });
