@@ -62,6 +62,7 @@
     .train-type-and-station {
       flex-direction: column;
       align-items: center;
+      padding: 0;
     }
 
     .train-type {
@@ -95,8 +96,13 @@
     /* 次列車情報のスタイル */
     .next-train-info {
       margin-top: 20px;
-      font-size: 1.2em;
+      font-size: 1.6rem;
       font-weight: bold;
+      background-color: #f0f0f0;
+      padding: 10px;
+      border: 1px solid #7a7a7a;
+      border-radius: 5px;
+      text-align: center;
     }
   </style>
 </head>
@@ -123,7 +129,7 @@
       </div>
     </div>
     <div class="next-train-info" id="next-train-info">
-      次列車情報：<span id="next-train"></span>
+      --次列車情報--<br><span id="next-train"></span>
     </div>
   </div>
 
@@ -210,6 +216,8 @@
           }
           table.appendChild(row);
         });
+
+        updateNextTrainInfo();
       }
 
       // 削除処理
@@ -238,10 +246,16 @@
 
           const trainInfo = `${nextTrain.trainType || '貨物列車'} / ${nextTrain.station || nextTrain.destination}, ${nextTrain.direction}, ${nextTrain.train || nextTrain.formation}, ${nextTrain.content || nextTrain.trainNumber}`;
 
+          nextTrainElement.innerHTML = ''; // Clear previous content
+
           if (timeDifference <= 5) {
             nextTrainElement.textContent = `まもなく：${trainInfo}が通過します`;
+            nextTrainElement.appendChild(document.createElement("br")); // 改行
+            nextTrainElement.appendChild(document.createTextNode(`残り${timeDifference}分`)); // 残り時間
           } else {
-            nextTrainElement.textContent = `${trainInfo} ${timeDifference}分後に通過`;
+            nextTrainElement.textContent = trainInfo; // 1行目
+            nextTrainElement.appendChild(document.createElement("br")); // 改行
+            nextTrainElement.appendChild(document.createTextNode(`${timeDifference}分後に通過`)); // 2行目
           }
         } else {
           nextTrainElement.textContent = '次の列車はありません';
@@ -249,7 +263,7 @@
       }
 
       // 1分ごとに次列車情報を更新
-      setInterval(updateNextTrainInfo, 60000);
+      setInterval(updateNextTrainInfo, 1000);
 
       renderTable();
       updateNextTrainInfo();
