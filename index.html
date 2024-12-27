@@ -116,9 +116,9 @@
       animation: blink 1s step-start 0s infinite;
     }
 
-    /* 通過済みの列車の背景色 */
-    .passed {
-      background-color: #d3d3d3; /* グレー */
+    /* 非表示のスタイル */
+    .hidden {
+      display: none;
     }
   </style>
 </head>
@@ -230,10 +230,12 @@
               </td>
             `;
           }
+
           table.appendChild(row);
         });
 
         updateNextTrainInfo();
+        hideOldTrains();
       }
 
       // 削除処理
@@ -260,7 +262,7 @@
           const [nextHour, nextMinute] = nextTrain.time.split(':').map(num => parseInt(num, 10));
           const timeDifference = (nextHour * 60 + nextMinute) - (now.getHours() * 60 + now.getMinutes());
 
-          const trainInfo = `${nextTrain.direction}, ${nextTrain.train || nextTrain.formation}, ${nextTrain.content || nextTrain.trainNumber}`;
+          const trainInfo = nextTrain.trainType ? `${nextTrain.direction}, ${nextTrain.destination}, ${nextTrain.content || nextTrain.trainNumber}` : `${nextTrain.direction}, ${nextTrain.train || nextTrain.formation}, ${nextTrain.content || nextTrain.trainNumber}`;
 
           nextTrainElement.innerHTML = ''; // Clear previous content
 
@@ -297,26 +299,32 @@
         } else {
           nextTrainElement.textContent = '次の列車はありません';
         }
+      }
 
-        // 通過済みの列車の背景色をグレーに設定
+      function hideOldTrains() {
+        const now = new Date();
+        const currentTimeInMinutes = now.getHours() * 60 + now.getMinutes();
+
+        // 1時間前のデータを非表示にする
         const rows = table.getElementsByTagName("tr");
         for (let i = 1; i < rows.length; i++) {
           const cells = rows[i].getElementsByTagName("td");
-          if (compareTimes(cells[2].textContent, currentTime) < 0) {
-            rows[i].classList.add("passed");
+          const [trainHour, trainMinute] = cells[2].textContent.split(':').map(num => parseInt(num, 10));
+          const trainTimeInMinutes = trainHour * 60 + trainMinute;
+          if (trainTimeInMinutes < currentTimeInMinutes - 59 && currentTimeInMinutes < 1440) {
+            rows[i].classList.add("hidden");
           } else {
-            rows[i].classList.remove("passed");
+            rows[i].classList.remove("hidden");
           }
         }
       }
 
-      // 1分ごとに次列車情報を更新
-      setInterval(updateNextTrainInfo, 100);
+      // 1秒ごとに次列車情報を更新
+      setInterval(updateNextTrainInfo, 1000);
+      // 1秒ごとに古い列車を非表示にする
+      setInterval(hideOldTrains, 1000);
 
       renderTable();
-      setInterval(() => {
-        updateNextTrainInfo();
-      }, 1000);
     });
   </script>
 </body>
