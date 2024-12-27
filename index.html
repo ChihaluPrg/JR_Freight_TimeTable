@@ -390,21 +390,27 @@
 
         function hideOrdinaryTrains() {
           const showOrdinaryTrains = showOrdinaryTrainsCheckbox.checked;
+          const showPassedTrains = showPassedTrainsCheckbox.checked;
+          const now = new Date();
+          const currentTimeInMinutes = now.getHours() * 60 + now.getMinutes();
 
           // 普通列車のデータを非表示にする
           const rows = table.getElementsByTagName("tr");
           for (let i = 1; i < rows.length; i++) {
             const cells = rows[i].getElementsByTagName("td");
-            if (
-              !showOrdinaryTrains &&
-              cells[0].classList.contains("train-type-and-station")
-            ) {
-              rows[i].classList.add("hidden");
-            } else if (
-              showOrdinaryTrains &&
-              cells[0].classList.contains("train-type-and-station")
-            ) {
-              rows[i].classList.remove("hidden");
+            const isOrdinaryTrain = cells[0].classList.contains("train-type-and-station");
+
+            if (isOrdinaryTrain) {
+              const [trainHour, trainMinute] = cells[2].textContent
+                .split(":")
+                .map((num) => parseInt(num, 10));
+              const trainTimeInMinutes = trainHour * 60 + trainMinute;
+
+              if (!showOrdinaryTrains || (!showPassedTrains && trainTimeInMinutes < currentTimeInMinutes)) {
+                rows[i].classList.add("hidden");
+              } else {
+                rows[i].classList.remove("hidden");
+              }
             }
           }
         }
@@ -424,9 +430,6 @@
         );
 
         renderTable();
-        document.addEventListener("DOMContentLoaded", () => {
-          renderTable(); // 初回テーブルの描画
-        });
       });
     </script>
   </body>
