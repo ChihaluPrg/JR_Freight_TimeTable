@@ -104,6 +104,22 @@
       border-radius: 5px;
       text-align: center;
     }
+
+    /* 点滅アニメーション */
+    @keyframes blink {
+      50% {
+        background-color: yellow;
+      }
+    }
+
+    .blinking {
+      animation: blink 1s step-start 0s infinite;
+    }
+
+    /* 通過済みの列車の背景色 */
+    .passed {
+      background-color: #d3d3d3; /* グレー */
+    }
   </style>
 </head>
 <body>
@@ -244,26 +260,58 @@
           const [nextHour, nextMinute] = nextTrain.time.split(':').map(num => parseInt(num, 10));
           const timeDifference = (nextHour * 60 + nextMinute) - (now.getHours() * 60 + now.getMinutes());
 
-          const trainInfo = `${nextTrain.trainType || '貨物列車'} / ${nextTrain.station || nextTrain.destination}, ${nextTrain.direction}, ${nextTrain.train || nextTrain.formation}, ${nextTrain.content || nextTrain.trainNumber}`;
+          const trainInfo = `${nextTrain.direction}, ${nextTrain.train || nextTrain.formation}, ${nextTrain.content || nextTrain.trainNumber}`;
 
           nextTrainElement.innerHTML = ''; // Clear previous content
 
           if (timeDifference <= 5) {
             nextTrainElement.textContent = `まもなく：${trainInfo}が通過します`;
             nextTrainElement.appendChild(document.createElement("br")); // 改行
-            nextTrainElement.appendChild(document.createTextNode(`残り${timeDifference}分`)); // 残り時間
+            nextTrainElement.appendChild(document.createTextNode(`通過まで残り${timeDifference}分`)); // 残り時間
+
+            // 点滅効果を追加
+            const rows = table.getElementsByTagName("tr");
+            for (let i = 1; i < rows.length; i++) {
+              const cells = rows[i].getElementsByTagName("td");
+              if (cells[2].textContent === nextTrain.time) {
+                rows[i].classList.add("blinking");
+              } else {
+                rows[i].classList.remove("blinking");
+              }
+            }
           } else {
+            const hours = Math.floor(timeDifference / 60);
+            const minutes = timeDifference % 60;
+            const timeText = hours > 0 ? `${hours}時間${minutes}分後に通過` : `${minutes}分後に通過`;
+
             nextTrainElement.textContent = trainInfo; // 1行目
             nextTrainElement.appendChild(document.createElement("br")); // 改行
-            nextTrainElement.appendChild(document.createTextNode(`${timeDifference}分後に通過`)); // 2行目
+            nextTrainElement.appendChild(document.createTextNode(timeText)); // 2行目
+
+            // 点滅効果を削除
+            const rows = table.getElementsByTagName("tr");
+            for (let i = 1; i < rows.length; i++) {
+              rows[i].classList.remove("blinking");
+            }
           }
         } else {
           nextTrainElement.textContent = '次の列車はありません';
         }
+
+        // 通過済みの列車の背景色をグレーに設定
+        const rows = table.getElementsByTagName("tr");
+        for (let i = 1; i < rows.length; i++) {
+          const cells = rows[i].getElementsByTagName("td");
+          if (compareTimes(cells[2].textContent, currentTime) < 0) {
+            rows[i].classList.add("passed");
+          } else {
+            rows[i].classList.remove("passed");
+          }
+        }
       }
 
       // 1分ごとに次列車情報を更新
-      setInterval(updateNextTrainInfo, 1000);
+      setInterval(updateNextTrainInfo, 100);
 
       renderTable();
       updateNextTrainInfo();
