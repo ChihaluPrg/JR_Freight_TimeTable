@@ -144,13 +144,13 @@
         <input type="checkbox" id="show-passed-trains" /> 通過済みの列車を表示
       </label>
       <div class="next-train-info" id="next-train-info">
-        --次列車情報--<br /><span id="next-train"></span>
+        == 次の通過列車 ==<br /><span id="next-train"></span>
       </div>
       <div class="timetable">
         <table id="timetable">
           <tr class="table-header">
             <th>種別 / 通/停駅</th>
-            <th>方向</th>
+            <th>方面</th>
             <th>時刻</th>
             <th>車両 (貨)<br />編成 (普)</th>
             <th>内容 (貨)<br />列番 (普)</th>
@@ -225,22 +225,22 @@
       <td>-</td>
       <td>-</td>
       <td>
-        <button onclick="deleteTrain(${combinedIndex}, 'ordinaryTimetable')">削除</button>
+      <button onclick="deleteTrain(${combinedIndex}, 'ordinaryTimetable')">削除</button>
       </td>
       `;
         } else if (train.trainType) {
           row.innerHTML = `
       <td class="train-type-and-station">
-        <div class="train-type">${train.trainType}</div>
-        <hr />
-        <div class="station">${train.destination}</div>
+      <div class="train-type">${train.trainType}</div>
+      <hr />
+      <div class="station">${train.destination}</div>
       </td>
       <td class="${directionClass}">${train.direction}</td>
       <td>${train.time}</td>
       <td>${train.formation}</td>
       <td>${train.trainNumber}</td>
       <td>
-        <button onclick="deleteTrain(${combinedIndex}, 'ordinaryTimetable')">削除</button>
+      <button onclick="deleteTrain(${combinedIndex}, 'ordinaryTimetable')">削除</button>
       </td>
       `;
         } else {
@@ -251,7 +251,7 @@
       <td class="freight-font-bold">${train.train}</td>
       <td class="freight-font-bold">${train.content}</td>
       <td>
-        <button onclick="deleteTrain(${combinedIndex}, 'timetable')">削除</button>
+      <button onclick="deleteTrain(${combinedIndex}, 'timetable')">削除</button>
       </td>
       `;
         }
@@ -348,7 +348,7 @@
           }
         }
         } else {
-        nextTrainElement.textContent = "次の列車はありません";
+        nextTrainElement.textContent = "次の通過列車はありません";
         }
       }
 
@@ -369,7 +369,7 @@
 
         if (
           !showPassedTrains &&
-          trainTimeInMinutes < currentTimeInMinutes
+          trainTimeInMinutes <= currentTimeInMinutes
         ) {
           rows[i].classList.add("hidden");
         } else {
@@ -396,7 +396,7 @@
           .map((num) => parseInt(num, 10));
           const trainTimeInMinutes = trainHour * 60 + trainMinute;
 
-          if (!showOrdinaryTrains || (!showPassedTrains && trainTimeInMinutes < currentTimeInMinutes)) {
+          if (!showOrdinaryTrains || (!showPassedTrains && trainTimeInMinutes <= currentTimeInMinutes)) {
           rows[i].style.display = "none";
           } else {
           rows[i].style.display = "";
