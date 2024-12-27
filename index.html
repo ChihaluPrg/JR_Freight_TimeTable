@@ -4,33 +4,47 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>JR貨物-時刻表</title>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
   <link rel="stylesheet" href="reset.css" />
   <link rel="stylesheet" href="style.css" />
-</head>
-<body>
-  <div class="container">
-    <div class="timetable">
-      <table id="timetable">
-        <tr class="table-header">
-          <th>種別 / 通/停駅</th>
-          <th>通/停時刻</th>
-          <th>車両</th>
-          <th>内容</th>
-          <th>操作</th>
-        </tr>
-      </table>
-    </div>
-    <div class="controls">
-      <a href="add-train.html" class="add">列車データを追加</a>
-    </div>
-    <div class="background">
-      <div class="background-img">
-        <img src="scenery_08_backboad.jpg" alt="背景">
-      </div>
-    </div>
-  </div>
-
   <style>
+    /* テーブルのスタイルを改善 */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 10px;
+      border: 1px solid #7a7a7a;
+    }
+
+    th {
+      background-color: #f4f4f4;
+      font-weight: bold;
+    }
+
+    /* 列の幅を調整 */
+    th:nth-child(1), td:nth-child(1) {
+      width: 20%;
+    }
+
+    th:nth-child(2), td:nth-child(2) {
+      width: 15%;
+    }
+
+    th:nth-child(3), td:nth-child(3) {
+      width: 20%;
+    }
+
+    th:nth-child(4), td:nth-child(4) {
+      width: 25%;
+    }
+
+    th:nth-child(5), td:nth-child(5) {
+      width: 20%;
+    }
+
     /* 普通列車のテーブルの背景色を緑にする */
     .ordinary-table-row {
       background-color: #b6ff98; /* 緑色 */
@@ -69,6 +83,29 @@
       background-color: #f9f9f9; /* 薄い灰色 */
     }
   </style>
+</head>
+<body>
+  <div class="container">
+    <div class="timetable">
+      <table id="timetable">
+        <tr class="table-header">
+          <th>種別 / 通/停駅</th>
+          <th>通/停時刻</th>
+          <th>車両</th>
+          <th>内容</th>
+          <th>操作</th>
+        </tr>
+      </table>
+    </div>
+    <div class="controls">
+      <a href="add-train.html" class="add">列車データを追加</a>
+    </div>
+    <div class="background">
+      <div class="background-img">
+        <img src="scenery_08_backboad.jpg" alt="背景">
+      </div>
+    </div>
+  </div>
 
   <script>
     document.addEventListener("DOMContentLoaded", () => {
