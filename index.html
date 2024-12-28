@@ -226,7 +226,7 @@
               (train) => parseInt(train.time.split(":")[0], 10) === hour
             );
 
-            trainsInHour.forEach((train, combinedIndex) => {
+            trainsInHour.forEach((train) => {
               const row = document.createElement("tr");
               const directionClass =
                 train.direction === "上り" ? "direction-up" : "direction-down";
@@ -234,39 +234,39 @@
               if (train.trainType === "回送") {
                 row.classList.add("train-type-ryousou");
                 row.innerHTML = `
-      <td class="editable" contenteditable="true" data-index="${combinedIndex}" data-field="trainType">回送</td>
-      <td class="editable ${directionClass}" contenteditable="true" data-index="${combinedIndex}" data-field="direction">${train.direction}</td>
-      <td class="editable" contenteditable="true" data-index="${combinedIndex}" data-field="time">${train.time}</td>
-      <td class="editable" contenteditable="true" data-index="${combinedIndex}" data-field="formation">-</td>
-      <td class="editable" contenteditable="true" data-index="${combinedIndex}" data-field="trainNumber">-</td>
+      <td class="editable" contenteditable="true" data-index="${timetable.indexOf(train)}" data-field="trainType">回送</td>
+      <td class="editable ${directionClass}" contenteditable="true" data-index="${timetable.indexOf(train)}" data-field="direction">${train.direction}</td>
+      <td class="editable" contenteditable="true" data-index="${timetable.indexOf(train)}" data-field="time">${train.time}</td>
+      <td class="editable" contenteditable="true" data-index="${timetable.indexOf(train)}" data-field="formation">-</td>
+      <td class="editable" contenteditable="true" data-index="${timetable.indexOf(train)}" data-field="trainNumber">-</td>
       <td>
-      <button onclick="deleteTrain(${combinedIndex}, 'ordinaryTimetable')">削除</button>
+      <button onclick="deleteTrain(${timetable.indexOf(train)}, 'timetable')">削除</button>
       </td>
       `;
               } else if (train.trainType) {
                 row.innerHTML = `
       <td class="train-type-and-station">
-      <div class="train-type editable" data-index="${combinedIndex}" data-field="trainType">${train.trainType}</div>
+      <div class="train-type editable" data-index="${ordinaryTimetable.indexOf(train)}" data-field="trainType">${train.trainType}</div>
       <hr />
-      <div class="station editable" data-index="${combinedIndex}" data-field="destination">${train.destination}</div>
+      <div class="station editable" data-index="${ordinaryTimetable.indexOf(train)}" data-field="destination">${train.destination}</div>
       </td>
-      <td class="editable ${directionClass}" data-index="${combinedIndex}" data-field="direction">${train.direction}</td>
-      <td class="editable" data-index="${combinedIndex}" data-field="time">${train.time}</td>
-      <td class="editable" data-index="${combinedIndex}" data-field="formation">${train.formation}</td>
-      <td class="editable" data-index="${combinedIndex}" data-field="trainNumber">${train.trainNumber}</td>
+      <td class="editable ${directionClass}" data-index="${ordinaryTimetable.indexOf(train)}" data-field="direction">${train.direction}</td>
+      <td class="editable" data-index="${ordinaryTimetable.indexOf(train)}" data-field="time">${train.time}</td>
+      <td class="editable" data-index="${ordinaryTimetable.indexOf(train)}" data-field="formation">${train.formation}</td>
+      <td class="editable" data-index="${ordinaryTimetable.indexOf(train)}" data-field="trainNumber">${train.trainNumber}</td>
       <td>
-      <button onclick="deleteTrain(${combinedIndex}, 'ordinaryTimetable')">削除</button>
+      <button onclick="deleteTrain(${ordinaryTimetable.indexOf(train)}, 'ordinaryTimetable')">削除</button>
       </td>
       `;
               } else {
                 row.innerHTML = `
-      <td class="editable freight-font-bold" data-index="${combinedIndex}" data-field="station">${train.station}</td>
-      <td class="editable freight-font-bold ${directionClass}" data-index="${combinedIndex}" data-field="direction">${train.direction}</td>
-      <td class="editable freight-font-bold" data-index="${combinedIndex}" data-field="time">${train.time}</td>
-      <td class="editable freight-font-bold" data-index="${combinedIndex}" data-field="train">${train.train}</td>
-      <td class="editable freight-font-bold" data-index="${combinedIndex}" data-field="content">${train.content}</td>
+      <td class="editable freight-font-bold" data-index="${timetable.indexOf(train)}" data-field="station">${train.station}</td>
+      <td class="editable freight-font-bold ${directionClass}" data-index="${timetable.indexOf(train)}" data-field="direction">${train.direction}</td>
+      <td class="editable freight-font-bold" data-index="${timetable.indexOf(train)}" data-field="time">${train.time}</td>
+      <td class="editable freight-font-bold" data-index="${timetable.indexOf(train)}" data-field="train">${train.train}</td>
+      <td class="editable freight-font-bold" data-index="${timetable.indexOf(train)}" data-field="content">${train.content}</td>
       <td>
-      <button onclick="deleteTrain(${combinedIndex}, 'timetable')">削除</button>
+      <button onclick="deleteTrain(${timetable.indexOf(train)}, 'timetable')">削除</button>
       </td>
       `;
               }
@@ -332,17 +332,11 @@
         }
 
         // 削除処理
-        window.deleteTrain = (combinedIndex, type) => {
-          console.log(`Deleting train at index ${combinedIndex} from ${type}`);
-          const currentTimetable =
-            type === "timetable" ? timetable : ordinaryTimetable;
-          const trainIndex = currentTimetable.findIndex(
-            (train) =>
-              combinedTimetable[combinedIndex].time === train.time &&
-              combinedTimetable[combinedIndex].trainType === train.trainType
-          );
-          if (trainIndex !== -1 && confirm("この列車データを削除しますか？")) {
-            currentTimetable.splice(trainIndex, 1);
+        window.deleteTrain = (index, type) => {
+          console.log(`Deleting train at index ${index} from ${type}`);
+          const currentTimetable = type === "timetable" ? timetable : ordinaryTimetable;
+          if (currentTimetable[index] && confirm("この列車データを削除しますか？")) {
+            currentTimetable.splice(index, 1);
             localStorage.setItem(type, JSON.stringify(currentTimetable));
             console.log(`Updated ${type}:`, currentTimetable);
             renderTable();
