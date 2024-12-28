@@ -152,10 +152,11 @@
       <div class="next-train-info" id="next-train-info">
         == 次の通過列車 ==<br /><span id="next-train"></span>
       </div>
-      <div class="timetable">
+      <!-- タイムテーブルを非表示にするためにhiddenクラスを追加 -->
+      <div class="timetable hidden">
         <table id="timetable">
           <tr class="table-header">
-            <th>種別 / 通/停駅</th>
+            <th>種別/行先</th>
             <th>方面</th>
             <th>時刻</th>
             <th>車両 (貨)<br />編成 (普)</th>
@@ -204,8 +205,8 @@
         function renderTable() {
           table.innerHTML = ` 
     <tr class="table-header">
-      <th>種別/行先<br>通過駅(貨)</th>
-      <th>方向</th>
+      <th>種別/行先</th>
+      <th>方面</th>
       <th>時刻</th>
       <th>車両 (貨)<br>編成 (普)</th>
       <th>内容 (貨)<br>列番 (普)</th>
@@ -231,12 +232,15 @@
               const directionClass =
                 train.direction === "上り" ? "direction-up" : "direction-down";
 
+              // 時刻に(約)を付加
+              const displayTime = train.approx ? `${train.time} (約)` : train.time;
+
               if (train.trainType === "回送") {
                 row.classList.add("train-type-ryousou");
                 row.innerHTML = `
       <td class="editable" contenteditable="true" data-index="${timetable.indexOf(train)}" data-field="trainType">回送</td>
       <td class="editable ${directionClass}" contenteditable="true" data-index="${timetable.indexOf(train)}" data-field="direction">${train.direction}</td>
-      <td class="editable" contenteditable="true" data-index="${timetable.indexOf(train)}" data-field="time">${train.time}</td>
+      <td class="editable" contenteditable="true" data-index="${timetable.indexOf(train)}" data-field="time">${displayTime}</td>
       <td class="editable" contenteditable="true" data-index="${timetable.indexOf(train)}" data-field="formation">-</td>
       <td class="editable" contenteditable="true" data-index="${timetable.indexOf(train)}" data-field="trainNumber">-</td>
       <td>
@@ -251,7 +255,7 @@
       <div class="station editable" data-index="${ordinaryTimetable.indexOf(train)}" data-field="destination">${train.destination}</div>
       </td>
       <td class="editable ${directionClass}" data-index="${ordinaryTimetable.indexOf(train)}" data-field="direction">${train.direction}</td>
-      <td class="editable" data-index="${ordinaryTimetable.indexOf(train)}" data-field="time">${train.time}</td>
+      <td class="editable" data-index="${ordinaryTimetable.indexOf(train)}" data-field="time">${displayTime}</td>
       <td class="editable" data-index="${ordinaryTimetable.indexOf(train)}" data-field="formation">${train.formation}</td>
       <td class="editable" data-index="${ordinaryTimetable.indexOf(train)}" data-field="trainNumber">${train.trainNumber}</td>
       <td>
@@ -262,7 +266,7 @@
                 row.innerHTML = `
       <td class="editable freight-font-bold" data-index="${timetable.indexOf(train)}" data-field="station">${train.station}</td>
       <td class="editable freight-font-bold ${directionClass}" data-index="${timetable.indexOf(train)}" data-field="direction">${train.direction}</td>
-      <td class="editable freight-font-bold" data-index="${timetable.indexOf(train)}" data-field="time">${train.time}</td>
+      <td class="editable freight-font-bold" data-index="${timetable.indexOf(train)}" data-field="time">${displayTime}</td>
       <td class="editable freight-font-bold" data-index="${timetable.indexOf(train)}" data-field="train">${train.train}</td>
       <td class="editable freight-font-bold" data-index="${timetable.indexOf(train)}" data-field="content">${train.content}</td>
       <td>
@@ -274,6 +278,9 @@
               table.appendChild(row);
             });
           }
+
+          // タイムテーブルのレンダリングが完了したらhiddenクラスを削除
+          document.querySelector('.timetable').classList.remove('hidden');
 
           updateNextTrainInfo();
           hidePassedTrains(); // ここで初回読み込み時に通過済みの列車を非表示にする
@@ -404,7 +411,11 @@
               nextTrainElement.append(`通過まで残り${timeDiffUp}分\n`);
               for (let i = 1; i < rows.length; i++) {
                 const cells = rows[i].getElementsByTagName("td");
-                if (cells[2].textContent === nextUpTrainTime) {
+                if (!cells[2]) continue; // 時刻がない行はスキップ
+
+                // 時刻部分のみ抽出
+                const cellTime = cells[2].textContent.split(" ")[0];
+                if (cellTime === nextUpTrainTime) {
                   rows[i].classList.add("blinking");
                 }
               }
@@ -443,7 +454,11 @@
               nextTrainElement.append(`通過まで残り${timeDiffDown}分\n`);
               for (let i = 1; i < rows.length; i++) {
                 const cells = rows[i].getElementsByTagName("td");
-                if (cells[2].textContent === nextDownTrainTime) {
+                if (!cells[2]) continue; // 時刻がない行はスキップ
+
+                // 時刻部分のみ抽出
+                const cellTime = cells[2].textContent.split(" ")[0];
+                if (cellTime === nextDownTrainTime) {
                   rows[i].classList.add("blinking");
                 }
               }

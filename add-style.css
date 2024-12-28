@@ -62,7 +62,6 @@ button {
   transition: background-color 0.3s ease;
 }
 
-
 a {
   display: inline-block;
   margin-top: 20px;
@@ -84,7 +83,12 @@ a:hover {
     height: 100%;
     object-fit: cover;
     opacity: 0.3;
-  }
+}
+
+/* 要素を非表示にするクラス */
+.hidden {
+  display: none;
+}
 
 #addTrainForm {
     background-color: #fff;

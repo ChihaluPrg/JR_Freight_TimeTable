@@ -47,7 +47,7 @@
     </div>
 
     <!-- 貨物列車フォーム -->
-    <div class="tab-content" id="cargoForm">
+    <div class="tab-content active" id="cargoForm">
       <form id="cargoTrainForm">
         <label for="station">種別</label>
         <select id="station" required>
@@ -90,6 +90,12 @@
           <option value="その他">その他</option>
           <option value="単機">単機</option>
         </select>
+
+        <!-- 通過時刻に(約)を付けるチェックボックス -->
+        <label for="cargoApproxTime">
+          <input type="checkbox" id="cargoApproxTime" />
+          通過時刻は概算ですか？
+        </label>
 
         <button type="submit">追加</button>
       </form>
@@ -151,6 +157,12 @@
         <label for="trainNumber">列車番号:</label>
         <input type="text" id="trainNumber" required placeholder="例: 1234E" />
 
+        <!-- 通過時刻に(約)を付けるチェックボックス -->
+        <label for="ordinaryApproxTime">
+          <input type="checkbox" id="ordinaryApproxTime" />
+          通過時刻は概算ですか？
+        </label>
+
         <button type="submit">追加</button>
       </form>
     </div>
@@ -197,9 +209,10 @@
       const time = document.getElementById("ordinaryTime").value || "-";
       const direction = document.getElementById("ordinaryDirection").value || "-";
       const trainNumber = document.getElementById("trainNumber").value || "-"; // 列車番号の追加
+      const approx = document.getElementById("ordinaryApproxTime").checked;
 
       // データを保存
-      const newTrain = { destination, trainType, formation, time, direction, trainNumber }; // 列車番号を追加
+      const newTrain = { destination, trainType, formation, time, direction, trainNumber, approx }; // 列車番号を追加
       const ordinaryTimetable = JSON.parse(localStorage.getItem("ordinaryTimetable")) || [];
       ordinaryTimetable.push(newTrain);
       localStorage.setItem("ordinaryTimetable", JSON.stringify(ordinaryTimetable));
@@ -218,6 +231,7 @@
       const time = document.getElementById("cargoTime").value || "-";
       const train = document.getElementById("train").value || "-";
       const content = document.getElementById("content").value || "-";
+      const approx = document.getElementById("cargoApproxTime").checked;
   
       // フォームに未選択の場合の「-」を設定
       document.getElementById("station").value = station;
@@ -227,7 +241,7 @@
       document.getElementById("content").value = content;
   
       // データを保存
-      const newTrain = { station, direction, time, train, content };
+      const newTrain = { station, direction, time, train, content, approx };
       const timetable = JSON.parse(localStorage.getItem("timetable")) || [];
       timetable.push(newTrain);
       localStorage.setItem("timetable", JSON.stringify(timetable));
