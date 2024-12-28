@@ -115,12 +115,12 @@
       /* 点滅アニメーション */
       @keyframes blink {
         50% {
-          background-color: yellow;
+          background-color: #b6ff98;
         }
       }
 
       .blinking {
-        animation: blink 1s step-start 0s infinite;
+        animation: blink 1s step-end infinite;
       }
 
       /* 非表示のスタイル */
@@ -219,11 +219,11 @@
         if (train.trainType === "回送") {
           row.classList.add("train-type-ryousou");
           row.innerHTML = `
-      <td>回送</td>
-      <td class="${directionClass}">${train.direction}</td>
-      <td>${train.time}</td>
-      <td>-</td>
-      <td>-</td>
+      <td class="editable" contenteditable="true" data-index="${combinedIndex}" data-field="trainType">回送</td>
+      <td class="editable ${directionClass}" contenteditable="true" data-index="${combinedIndex}" data-field="direction">${train.direction}</td>
+      <td class="editable" contenteditable="true" data-index="${combinedIndex}" data-field="time">${train.time}</td>
+      <td class="editable" contenteditable="true" data-index="${combinedIndex}" data-field="formation">-</td>
+      <td class="editable" contenteditable="true" data-index="${combinedIndex}" data-field="trainNumber">-</td>
       <td>
       <button onclick="deleteTrain(${combinedIndex}, 'ordinaryTimetable')">削除</button>
       </td>
@@ -231,25 +231,25 @@
         } else if (train.trainType) {
           row.innerHTML = `
       <td class="train-type-and-station">
-      <div class="train-type">${train.trainType}</div>
+      <div class="train-type editable" data-index="${combinedIndex}" data-field="trainType">${train.trainType}</div>
       <hr />
-      <div class="station">${train.destination}</div>
+      <div class="station editable" data-index="${combinedIndex}" data-field="destination">${train.destination}</div>
       </td>
-      <td class="${directionClass}">${train.direction}</td>
-      <td>${train.time}</td>
-      <td>${train.formation}</td>
-      <td>${train.trainNumber}</td>
+      <td class="editable ${directionClass}" data-index="${combinedIndex}" data-field="direction">${train.direction}</td>
+      <td class="editable" data-index="${combinedIndex}" data-field="time">${train.time}</td>
+      <td class="editable" data-index="${combinedIndex}" data-field="formation">${train.formation}</td>
+      <td class="editable" data-index="${combinedIndex}" data-field="trainNumber">${train.trainNumber}</td>
       <td>
       <button onclick="deleteTrain(${combinedIndex}, 'ordinaryTimetable')">削除</button>
       </td>
       `;
         } else {
           row.innerHTML = `
-      <td class="freight-font-bold">${train.station}</td>
-      <td class="freight-font-bold ${directionClass}">${train.direction}</td>
-      <td class="freight-font-bold">${train.time}</td>
-      <td class="freight-font-bold">${train.train}</td>
-      <td class="freight-font-bold">${train.content}</td>
+      <td class="editable freight-font-bold" data-index="${combinedIndex}" data-field="station">${train.station}</td>
+      <td class="editable freight-font-bold ${directionClass}" data-index="${combinedIndex}" data-field="direction">${train.direction}</td>
+      <td class="editable freight-font-bold" data-index="${combinedIndex}" data-field="time">${train.time}</td>
+      <td class="editable freight-font-bold" data-index="${combinedIndex}" data-field="train">${train.train}</td>
+      <td class="editable freight-font-bold" data-index="${combinedIndex}" data-field="content">${train.content}</td>
       <td>
       <button onclick="deleteTrain(${combinedIndex}, 'timetable')">削除</button>
       </td>
@@ -262,6 +262,57 @@
         updateNextTrainInfo();
         hidePassedTrains(); // ここで初回読み込み時に通過済みの列車を非表示にする
         hideOrdinaryTrains(); // 必要に応じて普通列車も非表示にする
+      }
+
+      // セルをクリックして編集可能にする
+      table.addEventListener("click", (event) => {
+        if (event.target.classList.contains("editable")) {
+          const cell = event.target;
+          const originalValue = cell.textContent;
+          const input = document.createElement("input");
+          input.type = "text";
+          input.value = originalValue;
+          cell.textContent = "";
+          cell.appendChild(input);
+          input.focus();
+
+          input.addEventListener("blur", () => {
+            const newValue = input.value;
+            cell.textContent = newValue;
+            const index = cell.getAttribute("data-index");
+            const field = cell.getAttribute("data-field");
+            updateTrainData(index, field, newValue);
+          });
+
+          input.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") {
+              input.blur();
+            }
+          });
+        }
+      });
+
+      function updateTrainData(index, field, value) {
+        const train = combinedTimetable[index];
+        train[field] = value;
+
+        const type = train.trainType ? "ordinaryTimetable" : "timetable";
+        const currentTimetable =
+          type === "timetable" ? timetable : ordinaryTimetable;
+
+        const trainIndex = currentTimetable.findIndex(
+          (t) =>
+            t.time === train.time &&
+            t.trainType === train.trainType &&
+            t.direction === train.direction
+        );
+
+        if (trainIndex !== -1) {
+          currentTimetable[trainIndex][field] = value;
+          localStorage.setItem(type, JSON.stringify(currentTimetable));
+        }
+
+        renderTable();
       }
 
       // 削除処理
@@ -299,7 +350,7 @@
           .map((num) => parseInt(num, 10));
         const timeDifference =
           nextHour * 60 +
-          nextMinute -
+          nextMinute - 
           (now.getHours() * 60 + now.getMinutes());
 
         const trainInfo = nextTrain.trainType

@@ -49,20 +49,20 @@
     <!-- 貨物列車フォーム -->
     <div class="tab-content" id="cargoForm">
       <form id="cargoTrainForm">
-        <label for="station">通過駅:</label>
+        <label for="station">種別</label>
         <select id="station" required>
           <option value="" disabled selected>-選択-</option>
-          <option value="吹上 (通過)">吹上 (通過)</option>
+          <option value="貨物列車">貨物列車</option>
         </select>
 
-        <label for="direction">方面:</label>
+        <label for="direction">方面</label>
         <select id="direction" required>
           <option value="" disabled selected>-選択-</option>
           <option value="上り">上り</option>
           <option value="下り">下り</option>
         </select>
 
-        <label for="cargoTime">通過時刻:</label>
+        <label for="cargoTime">通過時刻</label>
         <input type="time" id="cargoTime" required />
 
         <label for="train">車両:</label>
@@ -71,6 +71,7 @@
           <option value="EH500">EH500</option>
           <option value="EH200">EH200</option>
           <option value="EF210">EF210</option>
+          <option value="EF66">EF66</option>
           <option value="EF65">EF65</option>
           <option value="EF64">EF64</option>
           <option value="EF81">EF81</option>
@@ -78,7 +79,7 @@
           <option value="その他">その他</option>
         </select>
 
-        <label for="content">内容:</label>
+        <label for="content">内容</label>
         <select id="content" required>
           <option value="" disabled selected>-選択-</option>
           <option value="コンテナ">コンテナ</option>
@@ -97,7 +98,7 @@
     <!-- 普通列車フォーム -->
     <div class="tab-content" id="ordinaryForm">
       <form id="ordinaryTrainForm">
-        <label for="trainType">種別:</label>
+        <label for="trainType">種別</label>
         <select id="trainType" required>
           <option value="-" disabled selected>-選択-</option>
           <option value="普通">普通</option>
@@ -107,17 +108,17 @@
           <option value="回送">回送</option>
         </select>
 
-        <label for="ordinaryDirection">方面:</label>
+        <label for="ordinaryDirection">方面</label>
         <select id="ordinaryDirection" required>
           <option value="-" disabled selected>-選択-</option>
           <option value="上り">上り</option>
           <option value="下り">下り</option>
         </select>
 
-        <label for="ordinaryTime">通過時刻:</label>
+        <label for="ordinaryTime">通過時刻</label>
         <input type="time" id="ordinaryTime" required />
 
-        <label for="destination">行先:</label>
+        <label for="destination">行先</label>
         <select id="destination" required>
           <option value="-" disabled selected>-選択-</option>
           <optgroup label="下り">
@@ -139,7 +140,7 @@
         <label for="formation">編成:</label>
         <select id="formation" required>
           <option value="-" disabled selected>-選択-</option>
-          <option value="8両">8両</option>
+          <option value="5両">5両</option>
           <option value="10両">10両</option>
           <option value="15両">15両</option>
         </select>
