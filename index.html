@@ -216,25 +216,24 @@
           combinedTimetable = [...timetable, ...ordinaryTimetable];
           combinedTimetable.sort((a, b) => compareTimes(a.time, b.time));
 
-          let currentHour = null;
+          for (let hour = 0; hour < 24; hour++) {
+            const hourRow = document.createElement("tr");
+            hourRow.classList.add("hour-row");
+            hourRow.innerHTML = `<td colspan="6">${hour}時</td>`;
+            table.appendChild(hourRow);
 
-          combinedTimetable.forEach((train, combinedIndex) => {
-            const row = document.createElement("tr");
-            const directionClass =
-              train.direction === "上り" ? "direction-up" : "direction-down";
-            const trainHour = train.time.split(":")[0];
+            const trainsInHour = combinedTimetable.filter(
+              (train) => parseInt(train.time.split(":")[0], 10) === hour
+            );
 
-            if (trainHour !== currentHour) {
-              currentHour = trainHour;
-              const hourRow = document.createElement("tr");
-              hourRow.classList.add("hour-row");
-              hourRow.innerHTML = `<td colspan="6">${currentHour}時</td>`;
-              table.appendChild(hourRow);
-            }
+            trainsInHour.forEach((train, combinedIndex) => {
+              const row = document.createElement("tr");
+              const directionClass =
+                train.direction === "上り" ? "direction-up" : "direction-down";
 
-            if (train.trainType === "回送") {
-              row.classList.add("train-type-ryousou");
-              row.innerHTML = `
+              if (train.trainType === "回送") {
+                row.classList.add("train-type-ryousou");
+                row.innerHTML = `
       <td class="editable" contenteditable="true" data-index="${combinedIndex}" data-field="trainType">回送</td>
       <td class="editable ${directionClass}" contenteditable="true" data-index="${combinedIndex}" data-field="direction">${train.direction}</td>
       <td class="editable" contenteditable="true" data-index="${combinedIndex}" data-field="time">${train.time}</td>
@@ -244,8 +243,8 @@
       <button onclick="deleteTrain(${combinedIndex}, 'ordinaryTimetable')">削除</button>
       </td>
       `;
-            } else if (train.trainType) {
-              row.innerHTML = `
+              } else if (train.trainType) {
+                row.innerHTML = `
       <td class="train-type-and-station">
       <div class="train-type editable" data-index="${combinedIndex}" data-field="trainType">${train.trainType}</div>
       <hr />
@@ -259,8 +258,8 @@
       <button onclick="deleteTrain(${combinedIndex}, 'ordinaryTimetable')">削除</button>
       </td>
       `;
-            } else {
-              row.innerHTML = `
+              } else {
+                row.innerHTML = `
       <td class="editable freight-font-bold" data-index="${combinedIndex}" data-field="station">${train.station}</td>
       <td class="editable freight-font-bold ${directionClass}" data-index="${combinedIndex}" data-field="direction">${train.direction}</td>
       <td class="editable freight-font-bold" data-index="${combinedIndex}" data-field="time">${train.time}</td>
@@ -270,10 +269,11 @@
       <button onclick="deleteTrain(${combinedIndex}, 'timetable')">削除</button>
       </td>
       `;
-            }
+              }
 
-            table.appendChild(row);
-          });
+              table.appendChild(row);
+            });
+          }
 
           updateNextTrainInfo();
           hidePassedTrains(); // ここで初回読み込み時に通過済みの列車を非表示にする
