@@ -97,6 +97,16 @@
           通過時刻は概算ですか？
         </label>
 
+        <!-- 平日と土曜・休日のチェックボックスを追加 -->
+        <label for="trainDayWeekday">
+          <input type="checkbox" id="trainDayWeekday" />
+          平日
+        </label>
+        <label for="trainDayHoliday">
+          <input type="checkbox" id="trainDayHoliday" />
+          土曜・休日
+        </label>
+
         <button type="submit">追加</button>
       </form>
     </div>
@@ -163,6 +173,16 @@
           通過時刻は概算ですか？
         </label>
 
+        <!-- 平日と土曜・休日のチェックボックスを追加 -->
+        <label for="trainDayWeekday">
+          <input type="checkbox" id="trainDayWeekday" />
+          平日
+        </label>
+        <label for="trainDayHoliday">
+          <input type="checkbox" id="trainDayHoliday" />
+          土曜・休日
+        </label>
+
         <button type="submit">追加</button>
       </form>
     </div>
@@ -210,9 +230,11 @@
       const direction = document.getElementById("ordinaryDirection").value || "-";
       const trainNumber = document.getElementById("trainNumber").value || "-"; // 列車番号の追加
       const approx = document.getElementById("ordinaryApproxTime").checked;
+      const weekday = document.getElementById("trainDayWeekday").checked;
+      const holiday = document.getElementById("trainDayHoliday").checked;
 
       // データを保存
-      const newTrain = { destination, trainType, formation, time, direction, trainNumber, approx }; // 列車番号を追加
+      const newTrain = { destination, trainType, formation, time, direction, trainNumber, approx, weekday, holiday }; // 平日と土曜・休日を追加
       const ordinaryTimetable = JSON.parse(localStorage.getItem("ordinaryTimetable")) || [];
       ordinaryTimetable.push(newTrain);
       localStorage.setItem("ordinaryTimetable", JSON.stringify(ordinaryTimetable));
@@ -232,6 +254,8 @@
       const train = document.getElementById("train").value || "-";
       const content = document.getElementById("content").value || "-";
       const approx = document.getElementById("cargoApproxTime").checked;
+      const weekday = document.getElementById("trainDayWeekday").checked;
+      const holiday = document.getElementById("trainDayHoliday").checked;
   
       // フォームに未選択の場合の「-」を設定
       document.getElementById("station").value = station;
@@ -241,7 +265,7 @@
       document.getElementById("content").value = content;
   
       // データを保存
-      const newTrain = { station, direction, time, train, content, approx };
+      const newTrain = { station, direction, time, train, content, approx, weekday, holiday }; // 平日と土曜・休日を追加
       const timetable = JSON.parse(localStorage.getItem("timetable")) || [];
       timetable.push(newTrain);
       localStorage.setItem("timetable", JSON.stringify(timetable));

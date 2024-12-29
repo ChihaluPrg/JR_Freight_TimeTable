@@ -152,6 +152,17 @@
       <div class="next-train-info" id="next-train-info">
         == 次の通過列車 ==<br /><span id="next-train"></span>
       </div>
+      <!-- フィルターチェックボックスの追加 -->
+      <div class="filters">
+        <label>
+          <input type="checkbox" id="filterWeekday" checked />
+          平日の列車を表示
+        </label>
+        <label>
+          <input type="checkbox" id="filterHoliday" checked />
+          土曜・休日の列車を表示
+        </label>
+      </div>
       <!-- タイムテーブルを非表示にするためにhiddenクラスを追加 -->
       <div class="timetable hidden">
         <table id="timetable">
@@ -188,6 +199,20 @@
         );
         const showPassedTrainsCheckbox =
           document.getElementById("show-passed-trains");
+        const filterWeekdayCheckbox = document.getElementById("filterWeekday");
+        const filterHolidayCheckbox = document.getElementById("filterHoliday");
+
+        // 現在の日付を取得
+        const today = new Date();
+        const dayOfWeek = today.getDay(); // 0:日曜日, 1:月曜日, ..., 6:土曜日
+
+        if (dayOfWeek === 0 || dayOfWeek === 6) { // 土曜日または日曜日
+          filterWeekdayCheckbox.checked = false;
+          filterHolidayCheckbox.checked = true;
+        } else { // 平日
+          filterWeekdayCheckbox.checked = true;
+          filterHolidayCheckbox.checked = false;
+        }
 
         // 時刻を比較するための関数（HH:mm形式の文字列であれば十分）
         const compareTimes = (time1, time2) => {
@@ -217,13 +242,33 @@
           combinedTimetable = [...timetable, ...ordinaryTimetable];
           combinedTimetable.sort((a, b) => compareTimes(a.time, b.time));
 
+          // フィルター適用
+          const showWeekday = filterWeekdayCheckbox.checked;
+          const showHoliday = filterHolidayCheckbox.checked;
+
+          const now = new Date();
+          const currentTimeInMinutes = now.getHours() * 60 + now.getMinutes();
+          const limitTimeInMinutes = currentTimeInMinutes + 240; // 4時間後
+
+          const filteredTimetable = combinedTimetable.filter(train => {
+            if (train.weekday && !showWeekday) return false;
+            if (train.holiday && !showHoliday) return false;
+            if (!train.weekday && !train.holiday) return true; // どちらにも該当しない場合表示
+
+            const [trainHour, trainMinute] = train.time.split(":").map(Number);
+            const trainTimeInMinutes = trainHour * 60 + trainMinute;
+
+            // 現在時刻から4時間後までの列車のみを表示
+            return trainTimeInMinutes >= currentTimeInMinutes && trainTimeInMinutes <= limitTimeInMinutes;
+          });
+
           for (let hour = 0; hour < 24; hour++) {
             const hourRow = document.createElement("tr");
             hourRow.classList.add("hour-row");
             hourRow.innerHTML = `<td colspan="6">${hour}時</td>`;
             table.appendChild(hourRow);
 
-            const trainsInHour = combinedTimetable.filter(
+            const trainsInHour = filteredTimetable.filter(
               (train) => parseInt(train.time.split(":")[0], 10) === hour
             );
 
@@ -546,6 +591,8 @@
           "change",
           hideOrdinaryTrains
         );
+        filterWeekdayCheckbox.addEventListener("change", renderTable);
+        filterHolidayCheckbox.addEventListener("change", renderTable);
 
         renderTable();
       });
