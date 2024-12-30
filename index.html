@@ -262,7 +262,7 @@
             return trainTimeInMinutes >= currentTimeInMinutes && trainTimeInMinutes <= limitTimeInMinutes;
           });
 
-          for (let hour = 0; hour < 24; hour++) {
+          for (let hour = 0; hour < 24; hour++) { 
             const hourRow = document.createElement("tr");
             hourRow.classList.add("hour-row");
             hourRow.innerHTML = `<td colspan="6">${hour}時</td>`;
