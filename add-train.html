@@ -43,18 +43,11 @@
     <!-- タブ -->
     <div class="tabs">
       <div class="tab" id="cargoTab">貨物列車</div>
-      <div class="tab" id="ordinaryTab">普通列車</div>
     </div>
 
     <!-- 貨物列車フォーム -->
     <div class="tab-content active" id="cargoForm">
       <form id="cargoTrainForm">
-        <label for="station">種別</label>
-        <select id="station" required>
-          <option value="" disabled selected>-選択-</option>
-          <option value="貨物列車">貨物列車</option>
-        </select>
-
         <label for="direction">方面</label>
         <select id="direction" required>
           <option value="" disabled selected>-選択-</option>
@@ -92,95 +85,9 @@
         </select>
 
         <!-- 通過時刻に(約)を付けるチェックボックス -->
-        <label for="cargoApproxTime">
-          <input type="checkbox" id="cargoApproxTime" />
+        <label for="trainApproxTime">
+          <input type="checkbox" id="trainApproxTime" />
           通過時刻は概算ですか？
-        </label>
-
-        <!-- 平日と土曜・休日のチェックボックスを追加 -->
-        <label for="trainDayWeekday">
-          <input type="checkbox" id="trainDayWeekday" />
-          平日
-        </label>
-        <label for="trainDayHoliday">
-          <input type="checkbox" id="trainDayHoliday" />
-          土曜・休日
-        </label>
-
-        <button type="submit">追加</button>
-      </form>
-    </div>
-
-    <!-- 普通列車フォーム -->
-    <div class="tab-content" id="ordinaryForm">
-      <form id="ordinaryTrainForm">
-        <label for="trainType">種別</label>
-        <select id="trainType" required>
-          <option value="-" disabled selected>-選択-</option>
-          <option value="普通">普通</option>
-          <option value="快速 (新宿)">快速 (新宿)</option>
-          <option value="特別快速">特別快速</option>
-          <option value="特急">特急</option>
-          <option value="回送">回送</option>
-        </select>
-
-        <label for="ordinaryDirection">方面</label>
-        <select id="ordinaryDirection" required>
-          <option value="-" disabled selected>-選択-</option>
-          <option value="上り">上り</option>
-          <option value="下り">下り</option>
-        </select>
-
-        <label for="ordinaryTime">通過時刻</label>
-        <input type="time" id="ordinaryTime" required />
-
-        <label for="destination">行先</label>
-        <select id="destination" required>
-          <option value="-" disabled selected>-選択-</option>
-          <optgroup label="下り">
-            <option value="高崎行き">高崎行き</option>
-            <option value="前橋行き">前橋行き</option>
-            <option value="籠原行き">籠原行き</option>
-          </optgroup>
-          <optgroup label="上り">
-            <option value="熱海行き">熱海行き</option>
-            <option value="平塚行き">平塚行き</option>
-            <option value="国府津行き">国府津行き</option>
-            <option value="小田原行き">小田原行き</option>
-            <option value="沼津行き">沼津行き</option>
-            <option value="上野行き">上野行き</option>
-            
-          </optgroup>
-        </select>
-
-        <label for="formation">編成:</label>
-        <select id="formation" required>
-          <option value="-" disabled selected>-選択-</option>
-          <option value="5両">5両</option>
-          <option value="10両">10両</option>
-          <option value="15両">15両</option>
-        </select>
-
-        
-
-        <!-- 追加: 列車番号 -->
-        <label for="trainNumber">列車番号:</label>
-        <input type="text" id="trainNumber" required placeholder="例: 1234E" />
-
-        <!-- 通過時刻に(約)を付けるチェックボックス -->
-        <label for="ordinaryApproxTime">
-          <input type="checkbox" id="ordinaryApproxTime" />
-          通過時刻は概算ですか？
-        </label>
-
-        <!-- 平日と土曜・休日のチェックボックスを追加 -->
-        <label for="trainDayWeekday">
-          <input type="checkbox" id="trainDayWeekday" />
-          平日
-        </label>
-        <label for="trainDayHoliday">
-          <input type="checkbox" id="trainDayHoliday" />
-          土曜・休日
         </label>
 
         <button type="submit">追加</button>
@@ -197,75 +104,25 @@
   </div>
 
   <script>
-    // 初期表示で貨物タブをアクティブにする
-    document.addEventListener("DOMContentLoaded", function() {
-      document.getElementById("cargoTab").classList.add("active");
-      document.getElementById("cargoForm").classList.add("active");
-    });
-
-    // タブ切り替えの処理
-    document.getElementById("cargoTab").addEventListener("click", function() {
-      document.getElementById("cargoForm").classList.add("active");
-      document.getElementById("ordinaryForm").classList.remove("active");
-      document.getElementById("cargoTab").classList.add("active");
-      document.getElementById("ordinaryTab").classList.remove("active");
-    });
-
-    document.getElementById("ordinaryTab").addEventListener("click", function() {
-      document.getElementById("ordinaryForm").classList.add("active");
-      document.getElementById("cargoForm").classList.remove("active");
-      document.getElementById("ordinaryTab").classList.add("active");
-      document.getElementById("cargoTab").classList.remove("active");
-    });
-
-    // 普通列車データ追加
-    document.getElementById("ordinaryTrainForm").addEventListener("submit", function(event) {
-      event.preventDefault();
-
-      // フォームの値を取得。未選択の場合は "-" に設定。
-      const destination = document.getElementById("destination").value || "-";
-      const trainType = document.getElementById("trainType").value || "-";
-      const formation = document.getElementById("formation").value || "-";
-      const time = document.getElementById("ordinaryTime").value || "-";
-      const direction = document.getElementById("ordinaryDirection").value || "-";
-      const trainNumber = document.getElementById("trainNumber").value || "-"; // 列車番号の追加
-      const approx = document.getElementById("ordinaryApproxTime").checked;
-      const weekday = document.getElementById("trainDayWeekday").checked;
-      const holiday = document.getElementById("trainDayHoliday").checked;
-
-      // データを保存
-      const newTrain = { destination, trainType, formation, time, direction, trainNumber, approx, weekday, holiday }; // 平日と土曜・休日を追加
-      const ordinaryTimetable = JSON.parse(localStorage.getItem("ordinaryTimetable")) || [];
-      ordinaryTimetable.push(newTrain);
-      localStorage.setItem("ordinaryTimetable", JSON.stringify(ordinaryTimetable));
-
-      alert("普通列車データを追加しました！");
-      document.getElementById("ordinaryTrainForm").reset(); // フォームをリセット
-    });
-
     // 貨物列車データ追加
     document.getElementById("cargoTrainForm").addEventListener("submit", function(event) {
       event.preventDefault();
   
       // フォームの値を取得。未選択の場合は "-" に設定。
-      const station = document.getElementById("station").value || "-";
       const direction = document.getElementById("direction").value || "-";
       const time = document.getElementById("cargoTime").value || "-";
       const train = document.getElementById("train").value || "-";
       const content = document.getElementById("content").value || "-";
-      const approx = document.getElementById("cargoApproxTime").checked;
-      const weekday = document.getElementById("trainDayWeekday").checked;
-      const holiday = document.getElementById("trainDayHoliday").checked;
+      const approx = document.getElementById("trainApproxTime").checked;
   
       // フォームに未選択の場合の「-」を設定
-      document.getElementById("station").value = station;
       document.getElementById("direction").value = direction;
       document.getElementById("cargoTime").value = time;
       document.getElementById("train").value = train;
       document.getElementById("content").value = content;
   
       // データを保存
-      const newTrain = { station, direction, time, train, content, approx, weekday, holiday }; // 平日と土曜・休日を追加
+      const newTrain = { direction, time, train, content, approx }; // 'weekday' と 'holiday' を削除
       const timetable = JSON.parse(localStorage.getItem("timetable")) || [];
       timetable.push(newTrain);
       localStorage.setItem("timetable", JSON.stringify(timetable));
