@@ -321,7 +321,6 @@
           document.querySelector('.timetable').classList.remove('hidden');
 
           updateNextTrainInfo();
-          hidePassedTrains(); // ここで初回読み込み時に通過済みの列車を非表示にする
         }
 
         // セルをクリックして編集可能にする
@@ -442,10 +441,10 @@
               nextTrainElement.append(`通過まで残り${timeDiffUp}分\n`);
               for (let i = 1; i < rows.length; i++) {
                 const cells = rows[i].getElementsByTagName("td");
-                if (!cells[2]) continue; // 時刻がない行はスキップ
+                if (!cells[1]) continue; // 時刻がない行はスキップ
 
                 // 時刻部分のみ抽出
-                const cellTime = cells[2].textContent.split(" ")[0];
+                const cellTime = cells[1].textContent.split(" ")[0];
                 if (cellTime === nextUpTrainTime) {
                   rows[i].classList.add("blinking");
                 }
@@ -481,10 +480,10 @@
               nextTrainElement.append(`通過まで残り${timeDiffDown}分\n`);
               for (let i = 1; i < rows.length; i++) {
                 const cells = rows[i].getElementsByTagName("td");
-                if (!cells[2]) continue; // 時刻がない行はスキップ
+                if (!cells[1]) continue; // 時刻がない行はスキップ
 
                 // 時刻部分のみ抽出
-                const cellTime = cells[2].textContent.split(" ")[0];
+                const cellTime = cells[1].textContent.split(" ")[0];
                 if (cellTime === nextDownTrainTime) {
                   rows[i].classList.add("blinking");
                 }
@@ -501,41 +500,11 @@
           }
         }
 
-        function hidePassedTrains() {
-          const now = new Date();
-          const currentTimeInMinutes = now.getHours() * 60 + now.getMinutes();
-          const showPassedTrains = showPassedTrainsCheckbox.checked;
-
-          const rows = table.getElementsByTagName("tr");
-          for (let i = 1; i < rows.length; i++) {
-            const cells = rows[i].getElementsByTagName("td");
-            if (!cells[2]) continue; // 時刻がない行はスキップ
-
-            const [trainHour, trainMinute] = cells[2].textContent
-              .split(":")
-              .map((num) => parseInt(num, 10));
-            const trainTimeInMinutes = trainHour * 60 + trainMinute;
-
-            if (
-              !showPassedTrains &&
-              trainTimeInMinutes <= currentTimeInMinutes
-            ) {
-              rows[i].classList.add("hidden");
-            } else {
-              rows[i].classList.remove("hidden");
-            }
-          }
-        }
-
         // 1秒ごとに次列車情報を更新
         setInterval(updateNextTrainInfo, 1000);
-        // 1秒ごとに通過済みの列車を非表示にする
-        setInterval(hidePassedTrains, 1000);
-        // 普通列車に関連する非表示処理を削除
-        // setInterval(hideOrdinaryTrains, 1000);
 
         // チェックボックスの変更を監視
-        showPassedTrainsCheckbox.addEventListener("change", hidePassedTrains);
+        showPassedTrainsCheckbox.addEventListener("change", renderTable);
         // 普通列車のチェックボックスイベントを削除
         // showOrdinaryTrainsCheckbox.addEventListener(
         //   "change",
